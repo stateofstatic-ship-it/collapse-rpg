@@ -3,7 +3,7 @@ extends Node
 ## "week-one stress scene"). Builds the world, the battle mock, the HUD and
 ## the timed test runs, and writes a plain-text report.
 
-const VERSION := "stress-test 2"
+const VERSION := "stress-test 3"
 const CYCLES := {
 	"chars": [12, 24, 48, 4],
 	"layered": [4, 12, 0],
@@ -11,11 +11,11 @@ const CYCLES := {
 	"rain": [true, false],
 	"night": [true, false],
 	"scale": [0.67, 1.0],
-	"fps_cap": [60, 30, 120],
+	"fps_cap": [30, 60, 120],
 }
 const LABELS := {"chars": "Characters", "layered": "Layered family sprites", "lights": "Lights", "rain": "Rain", "night": "Night", "scale": "World render scale", "fps_cap": "Frame cap"}
 
-var settings := {"chars": 12, "layered": 4, "lights": 12, "rain": true, "night": true, "scale": 0.67, "fps_cap": 60}
+var settings := {"chars": 12, "layered": 4, "lights": 12, "rain": true, "night": true, "scale": 0.67, "fps_cap": 30}
 var container: SubViewportContainer
 var vp: SubViewport
 var world: World
@@ -396,7 +396,7 @@ func _finish_bench(stopped: bool) -> void:
 	hud.test_btn.disabled = false
 	if in_battle:
 		set_battle(false)
-	settings = {"chars": 12, "layered": 4, "lights": 12, "rain": true, "night": true, "scale": 0.67, "fps_cap": 60}
+	settings = {"chars": 12, "layered": 4, "lights": 12, "rain": true, "night": true, "scale": 0.67, "fps_cap": 30}
 	_apply_all()
 	hud.show_report(report)
 	if "--fast-bench" in OS.get_cmdline_user_args():
