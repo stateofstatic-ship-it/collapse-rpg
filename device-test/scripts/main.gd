@@ -3,19 +3,19 @@ extends Node
 ## "week-one stress scene"). Builds the world, the battle mock, the HUD and
 ## the timed test runs, and writes a plain-text report.
 
-const VERSION := "stress-test 1.0"
+const VERSION := "stress-test 2"
 const CYCLES := {
 	"chars": [12, 24, 48, 4],
 	"layered": [4, 12, 0],
 	"lights": [12, 16, 24, 4, 0],
 	"rain": [true, false],
 	"night": [true, false],
-	"scale": [1.0, 0.67],
+	"scale": [0.67, 1.0],
 	"fps_cap": [60, 30, 120],
 }
 const LABELS := {"chars": "Characters", "layered": "Layered family sprites", "lights": "Lights", "rain": "Rain", "night": "Night", "scale": "World render scale", "fps_cap": "Frame cap"}
 
-var settings := {"chars": 12, "layered": 4, "lights": 12, "rain": true, "night": true, "scale": 1.0, "fps_cap": 60}
+var settings := {"chars": 12, "layered": 4, "lights": 12, "rain": true, "night": true, "scale": 0.67, "fps_cap": 60}
 var container: SubViewportContainer
 var vp: SubViewport
 var world: World
@@ -261,11 +261,13 @@ func start_bench() -> void:
 		return
 	soak = false
 	bench = [
-		{"name": "A. Plan scene: 12 chars (4 layered), 12 lights, rain, night, 60 fps cap", "secs": 45.0, "battle": false, "s": {"chars": 12, "layered": 4, "lights": 12, "rain": true, "night": true, "scale": 1.0, "fps_cap": 60}},
-		{"name": "B. Same at 0.67 world render scale", "secs": 30.0, "battle": false, "s": {"scale": 0.67}},
-		{"name": "C. Heavy: 24 chars (12 layered), 24 lights", "secs": 30.0, "battle": false, "s": {"chars": 24, "layered": 12, "lights": 24, "scale": 1.0}},
-		{"name": "D. Uncapped (120): plan scene", "secs": 25.0, "battle": false, "s": {"chars": 12, "layered": 4, "lights": 12, "fps_cap": 120}},
-		{"name": "E. Battle screen, auto-play", "secs": 30.0, "battle": true, "s": {"fps_cap": 60}},
+		{"name": "A. Full resolution: 12 chars (4 layered), 12 lights, rain, night, 60 cap", "secs": 30.0, "battle": false, "s": {"chars": 12, "layered": 4, "lights": 12, "rain": true, "night": true, "scale": 1.0, "fps_cap": 60}},
+		{"name": "B. Phone setting: same at 0.67 scale, 60 cap", "secs": 40.0, "battle": false, "s": {"scale": 0.67}},
+		{"name": "C. 0.67 scale, 30 fps cap (battery lever)", "secs": 40.0, "battle": false, "s": {"fps_cap": 30}},
+		{"name": "D. 0.67 scale, 6 lights, 60 cap (light cost)", "secs": 30.0, "battle": false, "s": {"lights": 6, "fps_cap": 60}},
+		{"name": "E. 0.67 scale, no rain, 60 cap (rain cost)", "secs": 25.0, "battle": false, "s": {"lights": 12, "rain": false}},
+		{"name": "F. Heavy at 0.67: 24 chars (12 layered), 24 lights", "secs": 30.0, "battle": false, "s": {"chars": 24, "layered": 12, "lights": 24, "rain": true}},
+		{"name": "G. Battle screen, auto-play, 0.67 scale", "secs": 25.0, "battle": true, "s": {"chars": 12, "layered": 4, "lights": 12, "fps_cap": 60}},
 	]
 	_begin_bench()
 
@@ -277,7 +279,8 @@ func start_soak() -> void:
 	soak = true
 	soak_rows.clear()
 	soak_min_t = 0.0
-	bench = [{"name": "Soak: plan scene for 60 minutes", "secs": 3600.0, "battle": false, "s": {"chars": 12, "layered": 4, "lights": 12, "rain": true, "night": true, "scale": 1.0, "fps_cap": 60}}]
+	var cur := settings.duplicate()
+	bench = [{"name": "Soak 60 min at scale %.2f, %d fps cap, %d lights" % [cur["scale"], cur["fps_cap"], cur["lights"]], "secs": 3600.0, "battle": false, "s": cur}]
 	hud.settings_panel.visible = false
 	_begin_bench()
 
@@ -359,7 +362,8 @@ func _finish_bench(stopped: bool) -> void:
 	lines.append("Date %s UTC. Battery at start %s, charging: %s" % [Time.get_datetime_string_from_system(true), str(metrics.battery_start_pct), str(metrics.sample.get("charging", "n/a"))])
 	lines.append("")
 	if soak:
-		lines.append("SOAK, per minute: min | fps | p99 ms | slow>33 %% | heat | headroom | battery %% | RAM MB")
+		lines.append(String(bench[0]["name"]) if not bench.is_empty() else "")
+		lines.append("SOAK, per minute: min | fps | p99 ms | slow>33 % | heat | headroom | battery % | RAM MB")
 		for r in soak_rows:
 			lines.append("%2d | %.1f | %.1f | %.1f | %s | %.2f | %d | %.0f" % [r["minute"], r["fps"], r["p99_ms"], r["slow33_pct"], Metrics.thermal_name(r["thermal"]), r["headroom"], r["batt_pct"], r["rss_mb"]])
 		if soak_rows.size() >= 2:
@@ -392,7 +396,7 @@ func _finish_bench(stopped: bool) -> void:
 	hud.test_btn.disabled = false
 	if in_battle:
 		set_battle(false)
-	settings = {"chars": 12, "layered": 4, "lights": 12, "rain": true, "night": true, "scale": 1.0, "fps_cap": 60}
+	settings = {"chars": 12, "layered": 4, "lights": 12, "rain": true, "night": true, "scale": 0.67, "fps_cap": 60}
 	_apply_all()
 	hud.show_report(report)
 	if "--fast-bench" in OS.get_cmdline_user_args():

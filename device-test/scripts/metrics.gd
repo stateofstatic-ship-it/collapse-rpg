@@ -34,6 +34,7 @@ var battery_start_pct := -1.0
 var battery_start_ms := 0
 var max_thermal := 0
 var world_vp: Viewport = null
+var debug_cls: Object = null
 
 
 func _ready() -> void:
@@ -57,6 +58,7 @@ func _init_android() -> void:
 	if ctx == null:
 		android_error = "no context"
 		return
+	debug_cls = JavaClassWrapper.wrap("android.os.Debug")
 	battery_mgr = ctx.getSystemService("batterymanager")
 	power_mgr = ctx.getSystemService("power")
 	if battery_mgr == null or power_mgr == null:
@@ -106,6 +108,9 @@ func _refresh() -> void:
 
 
 func _rss_mb() -> float:
+	if debug_cls != null:
+		# android.os.Debug.getPss(): proportional set size of this process, in KB
+		return float(debug_cls.getPss()) / 1024.0
 	var f := FileAccess.open("/proc/self/status", FileAccess.READ)
 	if f == null:
 		return -1.0

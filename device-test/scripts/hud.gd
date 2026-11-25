@@ -120,7 +120,7 @@ func _build_top_buttons() -> void:
 	box.add_theme_constant_override("separation", dp(6))
 	mode_btn = _button("Battle", func() -> void: main.toggle_mode(), box)
 	_button("Settings", func() -> void: settings_panel.visible = not settings_panel.visible, box)
-	test_btn = _button("Run 3-min test", func() -> void: main.start_bench(), box)
+	test_btn = _button("Run 4-min test", func() -> void: main.start_bench(), box)
 	_button("Report", func() -> void: show_report(main.report), box)
 	root.add_child(box)
 
@@ -175,7 +175,7 @@ func _build_game_bar() -> void:
 	h.add_child(g)
 	game_bar = p
 	root.add_child(p)
-	log_line("Device test build. Drag to pan, pinch to zoom. Tap [b]Run 3-min test[/b] and keep the phone still.")
+	log_line("Device test build. Drag to pan, pinch to zoom. Tap [b]Run 4-min test[/b] and keep the phone still.")
 
 
 func _build_battle_bar() -> void:
@@ -222,7 +222,7 @@ func _build_settings() -> void:
 		var b := _button("", func() -> void: main.cycle_setting(key), v)
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		cycle_buttons[key] = b
-	_button("60-min soak test", func() -> void: main.start_soak(), v)
+	_button("60-min soak (current settings)", func() -> void: main.start_soak(), v)
 	_button("Stop test", func() -> void: main.stop_bench(), v)
 	_button("Close", func() -> void: settings_panel.visible = false, v)
 	settings_panel.visible = false
@@ -287,7 +287,7 @@ func _build_report() -> void:
 
 
 func show_report(text: String) -> void:
-	report_text.text = text if text != "" else "No test run yet. Tap Run 3-min test."
+	report_text.text = text if text != "" else "No test run yet. Tap Run 4-min test."
 	report_panel.visible = true
 
 
