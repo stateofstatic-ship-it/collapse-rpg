@@ -1,0 +1,195 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "The hill hospital",
+   "route": [
+    {
+     "cond": [
+      [
+       "not_where",
+       "partner",
+       "hospital"
+      ]
+     ],
+     "next": "gone"
+    }
+   ],
+   "text": "The generators carried the hospital for eleven hours and then the transfer switch, a box of dead circuit boards, stopped passing their power. Staff are bagging ventilated patients by hand in shifts.\n\n{partner.name} finds you at the ambulance bay, gloves still on. \"You came over the hill? Are the kids... okay. Okay.\" A breath. \"I have fourteen patients who can't breathe without someone squeezing a bag.\"",
+   "options": [
+    {
+     "text": "\"Then I'll squeeze a bag. One shift, and then we go home together.\"",
+     "family": "fix",
+     "gate": [
+      "medicine",
+      20
+     ],
+     "effects": [
+      [
+       "time",
+       1
+      ],
+      [
+       "buyin_role",
+       "partner",
+       10
+      ],
+      [
+       "flag",
+       "night_ward"
+      ],
+      [
+       "where",
+       "partner",
+       "@hero"
+      ],
+      [
+       "log",
+       "Night Ward: you took a bagging shift. Two nurses will remember the street that helped."
+      ]
+     ],
+     "next": "ward",
+     "fail": "ward_fail"
+    },
+    {
+     "text": "\"The kids need you. We need you. Please come home.\"",
+     "family": "talk",
+     "cond": [
+      [
+       "buyin_role",
+       "partner",
+       50
+      ]
+     ],
+     "effects": [
+      [
+       "where",
+       "partner",
+       "@hero"
+      ],
+      [
+       "strain",
+       "partner",
+       10
+      ]
+     ],
+     "next": "comes"
+    },
+    {
+     "text": "\"Come home now.\"",
+     "family": "talk",
+     "gate": [
+      "negotiation",
+      50
+     ],
+     "effects": [
+      [
+       "where",
+       "partner",
+       "@hero"
+      ],
+      [
+       "strain",
+       "partner",
+       15
+      ]
+     ],
+     "next": "comes",
+     "fail": "stays"
+    },
+    {
+     "text": "\"Stay. Do the work. Come home when you can.\"",
+     "family": "talk",
+     "effects": [
+      [
+       "flag",
+       "partner_stays"
+      ],
+      [
+       "buyin_role",
+       "partner",
+       5
+      ],
+      [
+       "flag",
+       "accounted_partner"
+      ]
+     ],
+     "next": "stays"
+    }
+   ]
+  },
+  "ward": {
+   "speaker": "Night Ward",
+   "text": "Squeeze, release, count. Six hours of it, in a corridor lit by headlamps from the shielded supply locker. Some patients die anyway; most don't. At the end of it {partner.name} peels off the gloves and says, \"Okay. Home.\"",
+   "options": [
+    {
+     "text": "Home.",
+     "next": "end"
+    }
+   ]
+  },
+  "ward_fail": {
+   "speaker": "Night Ward",
+   "text": "You try. Your hands don't know the rhythm and a charge nurse moves you to carrying water instead. It still helps. {partner.name} comes with you at the end of the shift.",
+   "options": [
+    {
+     "text": "Home.",
+     "effects": [
+      [
+       "time",
+       1
+      ],
+      [
+       "where",
+       "partner",
+       "@hero"
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  },
+  "comes": {
+   "speaker": "{partner.name}",
+   "text": "{partner.name} hands the bag to someone else and doesn't look back, which costs more than it looks like it does.",
+   "options": [
+    {
+     "text": "Home.",
+     "next": "end"
+    }
+   ]
+  },
+  "stays": {
+   "speaker": "{partner.name}",
+   "text": "\"Day seven. I'll walk home on day seven, whatever happens.\" It's a promise. You both know what promises cost now.",
+   "options": [
+    {
+     "text": "Go home without {partner.name}.",
+     "effects": [
+      [
+       "flag",
+       "partner_stays"
+      ],
+      [
+       "flag",
+       "accounted_partner"
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  },
+  "gone": {
+   "speaker": "The hill hospital",
+   "text": "{partner.name} isn't here anymore.",
+   "options": [
+    {
+     "text": "Back.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "hospital"
+}

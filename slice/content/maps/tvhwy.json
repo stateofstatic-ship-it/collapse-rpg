@@ -1,0 +1,156 @@
+{
+ "id": "tvhwy",
+ "size": [
+  32,
+  22
+ ],
+ "rows": [
+  "......,....,....,......,.,,.....",
+  "............,,..,........,.,..,.",
+  "..,,..........,...,.,.........,,",
+  "...,........,.,..,....,.,.......",
+  ".....,......,...................",
+  ",....H.....H...............H....",
+  "....,......,..,,...,......,...,.",
+  "---l--------------------l-------",
+  "=========c=============c========",
+  "==c=============c====c=======c==",
+  "============c=============c=====",
+  "======c============c============",
+  "====c===========================",
+  "-------------l----------------l-",
+  "..............-------...........",
+  "..............-------...........",
+  "..............-------...........",
+  "..............-------...........",
+  "..............-------...........",
+  "................................",
+  "........H..................H....",
+  "................................"
+ ],
+ "spawn": [
+  12,
+  11
+ ],
+ "variants": {
+  "dayzero": {
+   "night": true,
+   "spawn": [
+    12,
+    11
+   ],
+   "npcs": [
+    {
+     "id": "dell",
+     "name": "Dell Ranta",
+     "look": "char_elder",
+     "cell": [
+      16,
+      16
+     ],
+     "dialogue": "dz_pickup"
+    },
+    {
+     "id": "hollis",
+     "name": "Hollis",
+     "look": "char_trader",
+     "cell": [
+      20,
+      6
+     ],
+     "dialogue": "dz_bikeshop"
+    },
+    {
+     "id": "rafael",
+     "name": "A trapped driver",
+     "look": "char_civilian",
+     "cell": [
+      25,
+      12
+     ],
+     "dialogue": "dz_driver"
+    },
+    {
+     "id": "woman",
+     "name": "A woman with a phone",
+     "look": "char_survivor",
+     "cell": [
+      10,
+      13
+     ],
+     "line": "\"No service. Not even 911. Is yours...? No. Okay.\""
+    }
+   ],
+   "objects": [
+    {
+     "id": "phone",
+     "name": "Your phone",
+     "prop": "none",
+     "cell": [
+      12,
+      10
+     ],
+     "dialogue": "dz_phone"
+    },
+    {
+     "id": "sky",
+     "name": "Look up at the sky",
+     "prop": "none",
+     "cell": [
+      14,
+      12
+     ],
+     "dialogue": "dz_sky"
+    },
+    {
+     "id": "pickup",
+     "name": "Orange 1968 pickup",
+     "prop": "car",
+     "cell": [
+      17,
+      17
+     ],
+     "dialogue": "dz_pickup"
+    },
+    {
+     "id": "sedan",
+     "name": "Crashed sedan",
+     "prop": "car",
+     "cell": [
+      26,
+      12
+     ],
+     "dialogue": "dz_driver"
+    },
+    {
+     "id": "bikes",
+     "name": "Bike rack",
+     "prop": "crate",
+     "cell": [
+      21,
+      6
+     ],
+     "dialogue": "dz_bikeshop"
+    }
+   ],
+   "exits": [
+    {
+     "cell": [
+      31,
+      10
+     ],
+     "label": "Read the signs, then head home",
+     "event": "diagnose"
+    },
+    {
+     "cell": [
+      0,
+      10
+     ],
+     "label": "Read the signs, then head home",
+     "event": "diagnose"
+    }
+   ]
+  }
+ }
+}

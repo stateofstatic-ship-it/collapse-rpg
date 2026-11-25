@@ -1,0 +1,98 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "Arlo Dunmore",
+   "text": "\"Saw you hauling those blue jugs in on Saturday. Six of them. You planning a camping trip, or is there something on the news I missed?\" He's smiling. He also keeps looking at your garage.",
+   "options": [
+    {
+     "text": "\"Camping. The kids want to try the coast before it gets cold.\"",
+     "family": "talk",
+     "gate": [
+      "guile",
+      15
+     ],
+     "effects": [
+      [
+       "log",
+       "Arlo bought the camping story."
+      ]
+     ],
+     "next": "lie"
+    },
+    {
+     "text": "\"Honestly? The fires last year. I'd rather have water and not need it.\"",
+     "family": "talk",
+     "effects": [
+      [
+       "trust",
+       "dunmore",
+       1
+      ],
+      [
+       "profile",
+       3
+      ]
+     ],
+     "next": "truth"
+    },
+    {
+     "text": "\"Come by Saturday and I'll show you the filter setup. Costs less than you'd think.\"",
+     "family": "talk",
+     "gate": [
+      "negotiation",
+      20
+     ],
+     "effects": [
+      [
+       "trust",
+       "dunmore",
+       1
+      ],
+      [
+       "profile",
+       2
+      ],
+      [
+       "tally",
+       "arlo_filter",
+       "Show Arlo the water filter setup"
+      ]
+     ],
+     "next": "invite"
+    }
+   ]
+  },
+  "lie": {
+   "speaker": "Arlo Dunmore",
+   "text": "\"The coast. Huh. Bring me back some taffy.\" He lets it go. Your Profile stays where it was; your street knows a little less about you.",
+   "options": [
+    {
+     "text": "Move on.",
+     "next": "end"
+    }
+   ]
+  },
+  "truth": {
+   "speaker": "Arlo Dunmore",
+   "text": "\"Smart. I've got a generator in the garage I've never run. Maybe you can tell me which end the gas goes in.\" He means it as a joke. It isn't, quite.\n\nTelling a household the plan gives Trust +1 and Profile +3.",
+   "options": [
+    {
+     "text": "Move on.",
+     "next": "end"
+    }
+   ]
+  },
+  "invite": {
+   "speaker": "Arlo Dunmore",
+   "text": "\"Deal.\" A promise is a Tally now: dated, witnessed, and remembered. Keep it and your Word grows; break it and the street hears.",
+   "options": [
+    {
+     "text": "Move on.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "cookout_arlo"
+}

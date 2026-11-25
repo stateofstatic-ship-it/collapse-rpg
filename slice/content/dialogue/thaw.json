@@ -1,0 +1,166 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "Thaw",
+   "route": [
+    {
+     "cond": [
+      [
+       "flag",
+       "thaw_done"
+      ]
+     ],
+     "next": "done"
+    }
+   ],
+   "text": "Every freezer on the court has been dead since Day 0. On Day 2 the meat is still cold. By Day 4 it won't be. That's two deer, a side of beef and the Quans' entire freezer of dumplings.",
+   "options": [
+    {
+     "text": "Smoke, salt and can it, street-wide, in the Dunmores' driveway.",
+     "family": "fix",
+     "gate": [
+      "homestead",
+      25
+     ],
+     "effects": [
+      [
+       "flag",
+       "thaw_done"
+      ],
+      [
+       "food",
+       8
+      ],
+      [
+       "trust",
+       "quan",
+       1
+      ],
+      [
+       "trust",
+       "dunmore",
+       1
+      ],
+      [
+       "log",
+       "Thaw: the street smoked and canned its freezers. Food-days +8."
+      ]
+     ],
+     "next": "smoked",
+     "fail": "half"
+    },
+    {
+     "text": "Talk the court into one shared smokehouse and a share for everyone who brings meat.",
+     "family": "talk",
+     "gate": [
+      "negotiation",
+      35
+     ],
+     "effects": [
+      [
+       "flag",
+       "thaw_done"
+      ],
+      [
+       "food",
+       5
+      ],
+      [
+       "trust",
+       "achterberg",
+       1
+      ],
+      [
+       "trust",
+       "quan",
+       1
+      ]
+     ],
+     "next": "shared",
+     "fail": "half"
+    },
+    {
+     "text": "Grill what you can tonight and let the rest go.",
+     "family": "talk",
+     "effects": [
+      [
+       "flag",
+       "thaw_done"
+      ],
+      [
+       "food",
+       2
+      ],
+      [
+       "strain_all",
+       -3
+      ]
+     ],
+     "next": "grill"
+    }
+   ]
+  },
+  "smoked": {
+   "speaker": "Thaw",
+   "text": "Smoke hangs over the court for two days and every kid smells like a campfire. The cans line Ruth's garage shelves.",
+   "options": [
+    {
+     "text": "Good.",
+     "next": "end"
+    }
+   ]
+  },
+  "shared": {
+   "speaker": "Thaw",
+   "text": "Marisol and Hank build a smokehouse out of a garden shed and a woodstove. Everyone who brought meat gets a share.",
+   "options": [
+    {
+     "text": "Good.",
+     "next": "end"
+    }
+   ]
+  },
+  "half": {
+   "speaker": "Thaw",
+   "text": "You lose half of it to spoilage, but half is something.",
+   "options": [
+    {
+     "text": "Fine.",
+     "effects": [
+      [
+       "flag",
+       "thaw_done"
+      ],
+      [
+       "food",
+       3
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  },
+  "grill": {
+   "speaker": "Thaw",
+   "text": "A block party in a blackout. For one night it's almost a holiday. (Everyone -3 Strain.)",
+   "options": [
+    {
+     "text": "Good.",
+     "next": "end"
+    }
+   ]
+  },
+  "done": {
+   "speaker": "Thaw",
+   "text": "The freezers stand open and empty in the driveways.",
+   "options": [
+    {
+     "text": "Back.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "thaw"
+}

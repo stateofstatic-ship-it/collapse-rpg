@@ -1,0 +1,119 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "Dell Ranta",
+   "route": [
+    {
+     "cond": [
+      [
+       "clue",
+       "old_truck"
+      ]
+     ],
+     "next": "again"
+    }
+   ],
+   "text": "An old man in a feed-store cap is cranking a faded orange 1968 pickup in the gas station lot. It coughs twice and catches, loud as a tractor, the only engine running for a mile.\n\n\"Points and a carburetor,\" Dell says, patting the door. \"Nothing in it to kill. Every car built since I retired just died, didn't it?\"",
+   "options": [
+    {
+     "text": "\"Something physical hit the electronics. Not the power plant. Everything.\"",
+     "family": "know",
+     "effects": [
+      [
+       "clue",
+       "old_truck"
+      ]
+     ],
+     "next": "ride"
+    },
+    {
+     "text": "\"Any chance you're going my way?\"",
+     "family": "talk",
+     "effects": [
+      [
+       "clue",
+       "old_truck"
+      ]
+     ],
+     "next": "ride"
+    }
+   ]
+  },
+  "ride": {
+   "speaker": "Dell Ranta",
+   "text": "\"Going home to Cornelius. I can drop you off on the way if you push me out of this lot. Battery's fine, starter's tired.\"",
+   "options": [
+    {
+     "text": "Push, and take the ride home.",
+     "family": "fix",
+     "gate": [
+      "mechanics",
+      20
+     ],
+     "effects": [
+      [
+       "flag",
+       "dell_ride"
+      ],
+      [
+       "log",
+       "Dell Ranta gave you a ride home in a 1968 pickup."
+      ]
+     ],
+     "fail": "push_fail",
+     "next": "thanks"
+    },
+    {
+     "text": "\"Thanks. I'll walk. Get home safe.\"",
+     "family": "talk",
+     "effects": [
+      [
+       "mercy",
+       0
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  },
+  "push_fail": {
+   "speaker": "Dell Ranta",
+   "text": "You push, but you push wrong and the clutch pops too early. It stalls. Dell gets it going on the second try with the help of two teenagers, and you're left standing in the exhaust. \"Sorry, friend. Got to go while she's warm.\" (+5 Strain.)",
+   "options": [
+    {
+     "text": "Walk, then.",
+     "effects": [
+      [
+       "strain",
+       "hero",
+       5
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  },
+  "thanks": {
+   "speaker": "Dell Ranta",
+   "text": "\"Hop in when you're done looking around.\" When you leave TV Highway the pickup will take you home in one watch instead of two.",
+   "options": [
+    {
+     "text": "Finish up first.",
+     "next": "end"
+    }
+   ]
+  },
+  "again": {
+   "speaker": "Dell Ranta",
+   "text": "The pickup idles, loud and unbothered.",
+   "options": [
+    {
+     "text": "Back.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "dz_pickup"
+}

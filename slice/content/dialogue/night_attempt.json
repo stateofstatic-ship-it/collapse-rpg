@@ -1,0 +1,85 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "Night",
+   "text": "{dog.name} growls at the back fence at two in the morning. Two shapes are working the garage door with a bar. Your Profile drew them here: a house that's Marked gets tried.",
+   "options": [
+    {
+     "text": "Turn on a light and shout that you're armed.",
+     "family": "talk",
+     "gate": [
+      "negotiation",
+      30
+     ],
+     "effects": [
+      [
+       "profile",
+       2
+      ]
+     ],
+     "next": "fled",
+     "fail": "fight"
+    },
+    {
+     "text": "Go out and stop them.",
+     "family": "fight",
+     "effects": [
+      [
+       "battle",
+       "night_attempt"
+      ]
+     ],
+     "next": "end"
+    },
+    {
+     "text": "Let them have the garage. Lock the house.",
+     "family": "sneak",
+     "effects": [
+      [
+       "food",
+       -5
+      ],
+      [
+       "fuel",
+       -4
+      ],
+      [
+       "strain",
+       "hero",
+       8
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  },
+  "fled": {
+   "speaker": "Night",
+   "text": "Feet on gravel, then nothing. In the morning there are pry marks on the door and a dropped glove.",
+   "options": [
+    {
+     "text": "Back to bed.",
+     "next": "end"
+    }
+   ]
+  },
+  "fight": {
+   "speaker": "Night",
+   "text": "They don't run.",
+   "options": [
+    {
+     "text": "Fight.",
+     "effects": [
+      [
+       "battle",
+       "night_attempt"
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "night_attempt"
+}

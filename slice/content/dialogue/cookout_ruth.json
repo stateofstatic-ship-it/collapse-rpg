@@ -1,0 +1,87 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "Ruth Pellow",
+   "text": "Ruth spent thirty-one years as a 911 dispatcher and still sits like she's waiting for the board to light. The oxygen line runs from her nose to a concentrator humming on her porch.\n\n\"If the power ever goes for more than a few hours, would you knock? The machine runs on the wall. The bottles in the closet give me two days, maybe.\"",
+   "options": [
+    {
+     "text": "\"I'll knock. First thing. You have my word.\"",
+     "family": "talk",
+     "effects": [
+      [
+       "tally",
+       "ruth_knock",
+       "Knock on Ruth's door if the power fails"
+      ],
+      [
+       "trust",
+       "pellow",
+       1
+      ],
+      [
+       "word",
+       1
+      ]
+     ],
+     "next": "promise"
+    },
+    {
+     "text": "\"{partner.name} knows more about oxygen than I do. Let's put you on our list.\"",
+     "family": "talk",
+     "cond": [
+      [
+       "buyin_role",
+       "partner",
+       35
+      ]
+     ],
+     "effects": [
+      [
+       "tally",
+       "ruth_knock",
+       "Knock on Ruth's door if the power fails"
+      ],
+      [
+       "trust",
+       "pellow",
+       1
+      ],
+      [
+       "buyin_role",
+       "partner",
+       3
+      ]
+     ],
+     "next": "promise"
+    },
+    {
+     "text": "\"I can't promise that, Ruth. I'm not always home.\"",
+     "family": "talk",
+     "next": "decline"
+    }
+   ]
+  },
+  "promise": {
+   "speaker": "Ruth Pellow",
+   "text": "\"Good. I ran the check-on chain for this street once. Maybe I will again.\" She writes your house number on a card and tucks it in her blouse pocket.",
+   "options": [
+    {
+     "text": "Move on.",
+     "next": "end"
+    }
+   ]
+  },
+  "decline": {
+   "speaker": "Ruth Pellow",
+   "text": "\"Honest, at least.\" She looks back at the table. No promise, no Tally, nothing owed.",
+   "options": [
+    {
+     "text": "Move on.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "cookout_ruth"
+}

@@ -1,0 +1,70 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "Thimbleberry Court",
+   "text": "The court is dark and full of people standing in driveways with candles. Ruth has {child.name} and {dog.name} on her porch, the way the rally card said: if no one is home, go to Ruth's.\n\n{child.name} runs at you so hard you nearly go over.",
+   "options": [
+    {
+     "text": "\"Everyone's coming home. I promise.\"",
+     "effects": [
+      [
+       "where",
+       "child",
+       "home"
+      ],
+      [
+       "tally",
+       "promise_home",
+       "Bring everyone home"
+      ]
+     ],
+     "next": "check"
+    }
+   ]
+  },
+  "check": {
+   "speaker": "Thimbleberry Court",
+   "route": [
+    {
+     "cond": [
+      [
+       "where",
+       "teen",
+       "home"
+      ]
+     ],
+     "next": "tess_here"
+    }
+   ],
+   "text": "{teen.name} isn't here. The school is two and a half miles. {elder.name} is in Forest Grove. {partner.name} is across the West Hills at the hill hospital.",
+   "options": [
+    {
+     "text": "Check the garage.",
+     "next": "garage"
+    }
+   ]
+  },
+  "tess_here": {
+   "speaker": "{teen.name}",
+   "text": "{teen.name} is sitting on the front step with a dead phone in both hands. \"The card said come home. So I came home.\" The rally plan paid off before anything else did.",
+   "options": [
+    {
+     "text": "Check the garage.",
+     "next": "garage"
+    }
+   ]
+  },
+  "garage": {
+   "speaker": "The garage",
+   "text": "{garage_report}",
+   "options": [
+    {
+     "text": "Plan the gather.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "home_day0"
+}

@@ -1,0 +1,43 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "The sky",
+   "route": [
+    {
+     "cond": [
+      [
+       "clue",
+       "sky"
+      ]
+     ],
+     "next": "seen"
+    }
+   ],
+   "text": "The glow is fading to a dirty green. You look for the usual line of jets stacking up for PDX. There are no lights in the sky at all. No blast, no heat, no shaking. Whatever happened, it happened high.",
+   "options": [
+    {
+     "text": "Noted.",
+     "effects": [
+      [
+       "clue",
+       "sky"
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  },
+  "seen": {
+   "speaker": "The sky",
+   "text": "Green fading to nothing. No aircraft lights.",
+   "options": [
+    {
+     "text": "Look away.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "dz_sky"
+}

@@ -1,0 +1,268 @@
+{
+ "id": "court",
+ "size": [
+  30,
+  30
+ ],
+ "rows": [
+  "..............................",
+  ".T............................",
+  "..............................",
+  "..............................",
+  "................H.............",
+  "..............................",
+  "..........H...........H.......",
+  "..............---.............",
+  "............l-===-l...........",
+  "...........c-=====--..........",
+  "...........-=======-..........",
+  "..........-=========-.........",
+  "..........-=========-.........",
+  ".......H..-=========-....H....",
+  "...........-=======-..........",
+  "...........--=====--..........",
+  "............l-===-l...........",
+  ".............-===-..c.........",
+  ".............-===-............",
+  ".T...........-===-............",
+  ".............-===-............",
+  ".........H...-===-....H.......",
+  ".............-===-............",
+  ".............-===-............",
+  "T............-===-...........T",
+  ".............-===-............",
+  "T............-===-............",
+  ".............-===-............",
+  "......T......-===-.......T....",
+  ".............-===-............"
+ ],
+ "spawn": [
+  15,
+  27
+ ],
+ "houses": {
+  "home": [
+   22,
+   21
+  ],
+  "pellow": [
+   10,
+   6
+  ],
+  "dunmore": [
+   16,
+   4
+  ],
+  "lisk": [
+   22,
+   6
+  ],
+  "varga": [
+   25,
+   13
+  ],
+  "achterberg": [
+   7,
+   13
+  ],
+  "quan": [
+   9,
+   21
+  ]
+ },
+ "variants": {
+  "cookout": {
+   "night": false,
+   "spawn": [
+    17,
+    17
+   ],
+   "npcs": [
+    {
+     "id": "arlo",
+     "name": "Arlo Dunmore",
+     "look": "char_trader",
+     "cell": [
+      16,
+      9
+     ],
+     "dialogue": "cookout_arlo",
+     "once": true
+    },
+    {
+     "id": "ruth",
+     "name": "Ruth Pellow",
+     "look": "char_elder",
+     "cell": [
+      12,
+      10
+     ],
+     "dialogue": "cookout_ruth",
+     "once": true
+    },
+    {
+     "id": "teo",
+     "name": "Teo Lisk",
+     "look": "char_survivor",
+     "cell": [
+      19,
+      11
+     ],
+     "dialogue": "cookout_teo",
+     "once": true
+    },
+    {
+     "id": "partner",
+     "name": "{partner.name}",
+     "look": "char_medic",
+     "cell": [
+      14,
+      14
+     ],
+     "role": "partner",
+     "line": "\"Go be social. I'm on the potato salad.\""
+    },
+    {
+     "id": "teen",
+     "name": "{teen.name}",
+     "look": "char_civilian",
+     "cell": [
+      17,
+      13
+     ],
+     "role": "teen",
+     "line": "\"I'm not watching the grill. I'm watching the grill.\""
+    },
+    {
+     "id": "child",
+     "name": "{child.name}",
+     "look": "char_civilian",
+     "cell": [
+      15,
+      15
+     ],
+     "role": "child",
+     "scale": 0.75,
+     "line": "\"Can {dog.name} have a hot dog?\""
+    }
+   ],
+   "objects": [
+    {
+     "id": "table",
+     "name": "The long table",
+     "prop": "crate",
+     "cell": [
+      15,
+      12
+     ],
+     "line": "Potato salad, three kinds of chips, and a cooler with a hand-lettered sign: TAKE ONE."
+    }
+   ],
+   "finish": {
+    "needs": [
+     "arlo",
+     "ruth",
+     "teo"
+    ],
+    "event": "cookout_dog"
+   }
+  },
+  "act1": {
+   "night": true,
+   "spawn": [
+    15,
+    26
+   ],
+   "npcs": [
+    {
+     "id": "ruth1",
+     "name": "Ruth Pellow",
+     "look": "char_elder",
+     "cell": [
+      11,
+      9
+     ],
+     "line": "\"Check-on chain's running. Ask me if you need to know who's short.\""
+    },
+    {
+     "id": "hank",
+     "name": "Hank Achterberg",
+     "look": "char_worker",
+     "cell": [
+      9,
+      14
+     ],
+     "line": "\"Farmhouse well behind us still pumps by hand. Just so you know.\""
+    }
+   ],
+   "objects": [
+    {
+     "id": "meeting",
+     "name": "Ruth's garage: the lantern meeting",
+     "prop": "lamp",
+     "cell": [
+      10,
+      8
+     ],
+     "dialogue": "lantern_meeting",
+     "cond": [
+      [
+       "day_ge",
+       2
+      ],
+      [
+       "not_flag",
+       "m2_done"
+      ]
+     ]
+    },
+    {
+     "id": "thaw",
+     "name": "The Dunmores' dead freezer",
+     "prop": "crate",
+     "cell": [
+      16,
+      8
+     ],
+     "dialogue": "thaw",
+     "cond": [
+      [
+       "day_ge",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "radio",
+     "name": "The radio shelf",
+     "prop": "crate",
+     "cell": [
+      21,
+      18
+     ],
+     "dialogue": "relay_radio"
+    },
+    {
+     "id": "garage",
+     "name": "Your garage",
+     "prop": "none",
+     "cell": [
+      19,
+      19
+     ],
+     "event": "garage_view"
+    }
+   ],
+   "exits": [
+    {
+     "cell": [
+      15,
+      29
+     ],
+     "label": "Leave the court (world map)",
+     "event": "worldmap"
+    }
+   ]
+  }
+ }
+}

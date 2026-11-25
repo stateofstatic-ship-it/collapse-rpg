@@ -1,0 +1,750 @@
+{
+ "_note": "Act 0 block activities, from prep90.md 'Time blocks and activities'. lead = weeks until delivery (two Mondays = 2). last_week = last week it can be booked. Effects run on delivery when lead > 0.",
+ "activities": [
+  {
+   "id": "bulk_run",
+   "cat": "Supply",
+   "name": "Bulk Run",
+   "blocks": 1,
+   "money": 420,
+   "lead": 0,
+   "text": "24 food-days of staples. The checkout clerk notices.",
+   "effects": [
+    [
+     "food",
+     24
+    ],
+    [
+     "profile",
+     2
+    ],
+    [
+     "track",
+     "stores",
+     0.5
+    ]
+   ],
+   "bedrock": "pantry"
+  },
+  {
+   "id": "water_order",
+   "cat": "Supply",
+   "name": "Water Order",
+   "blocks": 1,
+   "money": 240,
+   "lead": 2,
+   "last_week": 6,
+   "text": "Two 55-gallon barrels and a gravity filter: 11 water-days.",
+   "effects": [
+    [
+     "water",
+     11
+    ],
+    [
+     "item",
+     "water_filter",
+     1
+    ],
+    [
+     "flag",
+     "filter"
+    ]
+   ],
+   "bedrock": "water"
+  },
+  {
+   "id": "pharmacy_run",
+   "cat": "Supply",
+   "name": "Pharmacy Run",
+   "blocks": 1,
+   "money": 150,
+   "lead": 0,
+   "per_week": 1,
+   "text": "30 inhaler-days and a kit restock.",
+   "effects": [
+    [
+     "inhalers",
+     30
+    ],
+    [
+     "kits",
+     1
+    ],
+    [
+     "track",
+     "medical",
+     0.5
+    ]
+   ],
+   "bedrock": "medicine"
+  },
+  {
+   "id": "cash_out",
+   "cat": "Supply",
+   "name": "Cash Out",
+   "blocks": 1,
+   "money": 500,
+   "lead": 0,
+   "text": "$300 in small bills and $200 of trade goods.",
+   "effects": [
+    [
+     "cash",
+     300
+    ],
+    [
+     "barter",
+     200
+    ],
+    [
+     "track",
+     "cash",
+     0.5
+    ]
+   ]
+  },
+  {
+   "id": "shield_kit",
+   "cat": "Supply",
+   "name": "Shield Kit",
+   "blocks": 1,
+   "money": 220,
+   "lead": 2,
+   "last_week": 6,
+   "text": "A sealed steel locker of spares: a handheld radio, an old phone with offline maps, an LED lantern.",
+   "effects": [
+    [
+     "shielded",
+     "handheld_radio",
+     1
+    ],
+    [
+     "shielded",
+     "phone",
+     1
+    ],
+    [
+     "shielded",
+     "led_lantern",
+     1
+    ],
+    [
+     "track",
+     "shielded",
+     0.5
+    ]
+   ]
+  },
+  {
+   "id": "counter_day",
+   "cat": "Supply",
+   "name": "Counter Day",
+   "blocks": 1,
+   "money": 650,
+   "lead": 1,
+   "per_week": 1,
+   "text": "A long gun and 15 rounds, after the background check.",
+   "effects": [
+    [
+     "item",
+     "rifle",
+     1
+    ],
+    [
+     "rounds",
+     15
+    ],
+    [
+     "track",
+     "arms",
+     0.5
+    ]
+   ]
+  },
+  {
+   "id": "gear_run",
+   "cat": "Supply",
+   "name": "Gear Run",
+   "blocks": 1,
+   "money": 0,
+   "lead": 0,
+   "text": "A day at the outfitter and the surplus store: up to four items (food buckets, water, radios, a medic bag, fuel cans, parts, armor). Placeholder prices; prep90's Go Kit table owns the catalog.",
+   "effects": [
+    [
+     "gear"
+    ]
+   ]
+  },
+  {
+   "id": "power_kit",
+   "cat": "Supply",
+   "name": "Power Kit",
+   "blocks": 1,
+   "money": 1700,
+   "lead": 2,
+   "last_week": 6,
+   "text": "A 2 kWh battery station and 625 W of folding panels. About 0.65 kWh a day of December sun.",
+   "effects": [
+    [
+     "item",
+     "power_station",
+     1
+    ],
+    [
+     "item",
+     "solar_panel",
+     5
+    ]
+   ]
+  },
+  {
+   "id": "buy_rig",
+   "cat": "Supply",
+   "name": "Buy the Rig",
+   "blocks": 2,
+   "money": 3200,
+   "lead": 1,
+   "last_week": 6,
+   "req": [
+    [
+     "not_flag",
+     "owns_rig"
+    ]
+   ],
+   "text": "A used 1990s 4x4 with a straight-six and room for a loadout. Fuel injected, so it is not Old Iron.",
+   "effects": [
+    [
+     "vehicle",
+     "rig_90s"
+    ],
+    [
+     "flag",
+     "owns_rig"
+    ],
+    [
+     "profile",
+     2
+    ]
+   ]
+  },
+  {
+   "id": "buy_truck",
+   "cat": "Supply",
+   "name": "Buy the Truck",
+   "blocks": 2,
+   "money": 4500,
+   "lead": 1,
+   "last_week": 6,
+   "req": [
+    [
+     "not_flag",
+     "owns_truck"
+    ]
+   ],
+   "text": "A 1968 pickup with points ignition. Loud, thirsty and almost nothing in it to kill.",
+   "effects": [
+    [
+     "vehicle",
+     "old_iron"
+    ],
+    [
+     "flag",
+     "owns_truck"
+    ],
+    [
+     "track",
+     "old_iron",
+     2
+    ],
+    [
+     "profile",
+     3
+    ]
+   ]
+  },
+  {
+   "id": "seal_spares",
+   "cat": "Site",
+   "name": "Seal the Spares",
+   "blocks": 1,
+   "money": 120,
+   "lead": 0,
+   "text": "A closed shielding bag with bonded seams, or sealed cans: room for six small devices and a vehicle's engine computer, ignition module and crank sensor.",
+   "effects": [
+    [
+     "flag",
+     "seal_bag"
+    ],
+    [
+     "track",
+     "shielded",
+     0.5
+    ],
+    [
+     "garage"
+    ]
+   ]
+  },
+  {
+   "id": "go_kit",
+   "cat": "Site",
+   "name": "Load the Go Kit",
+   "blocks": 1,
+   "money": 60,
+   "lead": 0,
+   "req": [
+    [
+     "has_vehicle"
+    ]
+   ],
+   "text": "Move chosen stores, water and gear into a vehicle and choose its hardening. Ready to roll; one basket.",
+   "effects": [
+    [
+     "flag",
+     "go_kit"
+    ],
+    [
+     "garage"
+    ]
+   ]
+  },
+  {
+   "id": "wrench_day",
+   "cat": "Site",
+   "name": "Wrench Day",
+   "blocks": 1,
+   "money": 200,
+   "lead": 0,
+   "req": [
+    [
+     "flag",
+     "owns_truck"
+    ]
+   ],
+   "text": "Plugs, points and a fuel filter. Old Iron +0.5, Mechanics +5.",
+   "effects": [
+    [
+     "track",
+     "old_iron",
+     0.5
+    ],
+    [
+     "skill",
+     "hero",
+     "mechanics",
+     5
+    ],
+    [
+     "components",
+     2
+    ]
+   ]
+  },
+  {
+   "id": "warm_room",
+   "cat": "Site",
+   "name": "Warm Room",
+   "blocks": 1,
+   "money": 480,
+   "lead": 0,
+   "text": "A wood stove in the den, 30 heat-days of split wood, a CO alarm, the water heater strapped and the shelves braced.",
+   "effects": [
+    [
+     "heat",
+     30
+    ],
+    [
+     "flag",
+     "stove"
+    ],
+    [
+     "flag",
+     "co_alarm"
+    ],
+    [
+     "track",
+     "hardening",
+     1
+    ]
+   ],
+   "bedrock": "warmth"
+  },
+  {
+   "id": "dig_beds",
+   "cat": "Site",
+   "name": "Dig Beds",
+   "blocks": 1,
+   "money": 150,
+   "lead": 0,
+   "text": "Two raised beds and a seed library.",
+   "effects": [
+    [
+     "track",
+     "homestead",
+     0.5
+    ],
+    [
+     "skill",
+     "hero",
+     "homestead",
+     3
+    ]
+   ]
+  },
+  {
+   "id": "paper_day",
+   "cat": "Site",
+   "name": "Paper Day",
+   "blocks": 1,
+   "money": 260,
+   "lead": 0,
+   "text": "Rally cards, paper maps, copies of documents, $200 in small bills. Includes {elder.name}'s power of attorney.",
+   "effects": [
+    [
+     "flag",
+     "rally_cards"
+    ],
+    [
+     "flag",
+     "poa"
+    ],
+    [
+     "item",
+     "paper_maps",
+     1
+    ],
+    [
+     "cash",
+     200
+    ],
+    [
+     "track",
+     "paper",
+     1
+    ]
+   ],
+   "bedrock": "plan"
+  },
+  {
+   "id": "antenna_day",
+   "cat": "Site",
+   "name": "Antenna Day",
+   "blocks": 1,
+   "money": 300,
+   "lead": 2,
+   "last_week": 6,
+   "text": "A shortwave receiver and a wire antenna in the attic.",
+   "effects": [
+    [
+     "item",
+     "shortwave",
+     1
+    ],
+    [
+     "track",
+     "radio",
+     0.5
+    ]
+   ]
+  },
+  {
+   "id": "night_class",
+   "cat": "Train",
+   "name": "Night Class",
+   "blocks": 2,
+   "money": 90,
+   "lead": 0,
+   "pick_skill": true,
+   "weeks": [
+    2,
+    4,
+    6
+   ],
+   "text": "A skill +15, certified at 35 or more. Cohorts start in weeks 2, 4 and 6.",
+   "effects": [
+    [
+     "class"
+    ]
+   ]
+  },
+  {
+   "id": "overtime",
+   "cat": "Work",
+   "name": "Overtime Shift",
+   "blocks": 1,
+   "money": 0,
+   "lead": 0,
+   "text": "Earns 40% of a week's pay. Job standing +5, Buy-in -1.",
+   "effects": [
+    [
+     "overtime"
+    ],
+    [
+     "job_standing",
+     5
+    ],
+    [
+     "buyin",
+     -1
+    ]
+   ]
+  },
+  {
+   "id": "sunday_dinner",
+   "cat": "Family",
+   "name": "Sunday Dinner",
+   "blocks": 1,
+   "money": 40,
+   "lead": 0,
+   "text": "Everyone at one table. Buy-in +6, Strain -10.",
+   "effects": [
+    [
+     "buyin",
+     6
+    ],
+    [
+     "strain_all",
+     -10
+    ],
+    [
+     "family_time"
+    ]
+   ]
+  },
+  {
+   "id": "family_drill",
+   "cat": "Family",
+   "name": "Family Drill",
+   "blocks": 1,
+   "money": 0,
+   "lead": 0,
+   "req": [
+    [
+     "buyin",
+     40
+    ]
+   ],
+   "text": "Walk the rally plan with everyone. Needs Buy-in 40.",
+   "effects": [
+    [
+     "drill"
+    ],
+    [
+     "family_time"
+    ]
+   ]
+  },
+  {
+   "id": "clinic_visit",
+   "cat": "Family",
+   "name": "Clinic Visit",
+   "blocks": 1,
+   "money": 190,
+   "lead": 2,
+   "last_week": 6,
+   "text": "90-day scripts, +70 inhaler-days and a second kit.",
+   "effects": [
+    [
+     "inhalers",
+     70
+    ],
+    [
+     "kits",
+     1
+    ],
+    [
+     "flag",
+     "scripts"
+    ],
+    [
+     "track",
+     "medical",
+     0.5
+    ]
+   ],
+   "bedrock": "medicine"
+  },
+  {
+   "id": "teach_teen",
+   "cat": "Family",
+   "name": "Teach {teen.name}",
+   "blocks": 1,
+   "money": 0,
+   "lead": 0,
+   "pick_skill": true,
+   "text": "{teen.name} +10 in a skill the hero holds at 35.",
+   "effects": [
+    [
+     "teach"
+    ],
+    [
+     "family_time"
+    ]
+   ]
+  },
+  {
+   "id": "porch_rounds",
+   "cat": "Neighbors",
+   "name": "Porch Rounds",
+   "blocks": 1,
+   "money": 20,
+   "lead": 0,
+   "text": "Two households Trust +1 (one tier a week each).",
+   "effects": [
+    [
+     "porch"
+    ]
+   ],
+   "bedrock": "circle"
+  },
+  {
+   "id": "ruck",
+   "cat": "Fitness",
+   "name": "Ruck the Hills",
+   "blocks": 1,
+   "money": 0,
+   "lead": 0,
+   "text": "Fitness +0.5.",
+   "effects": [
+    [
+     "track",
+     "fitness",
+     0.5
+    ]
+   ]
+  },
+  {
+   "id": "library_day",
+   "cat": "Research",
+   "name": "Library Day",
+   "blocks": 1,
+   "money": 0,
+   "lead": 0,
+   "text": "Eight extra pin checks on the Signal Board.",
+   "effects": [
+    [
+     "checks",
+     8
+    ]
+   ]
+  }
+ ],
+ "jobs": [
+  {
+   "id": "fab_tech",
+   "name": "Fab equipment tech",
+   "pay": 750,
+   "skill": "electronics",
+   "bonus": 15
+  },
+  {
+   "id": "facilities",
+   "name": "Server Row facilities tech",
+   "pay": 650,
+   "skill": "security",
+   "bonus": 15
+  },
+  {
+   "id": "mechanic",
+   "name": "Farm and fleet mechanic",
+   "pay": 550,
+   "skill": "mechanics",
+   "bonus": 25
+  },
+  {
+   "id": "loan_desk",
+   "name": "Loan desk",
+   "pay": 500,
+   "skill": "negotiation",
+   "bonus": 25
+  },
+  {
+   "id": "road_crew",
+   "name": "County road crew",
+   "pay": 450,
+   "skill": "fieldcraft",
+   "bonus": 25
+  },
+  {
+   "id": "emt",
+   "name": "Ambulance EMT",
+   "pay": 400,
+   "skill": "medicine",
+   "bonus": 25
+  }
+ ],
+ "threads": {
+  "_source": "prep90.md Signal Board. The true thread for Stopped Clocks is sky.",
+  "names": {
+   "faultline": "Faultline",
+   "fevers": "Fevers",
+   "machines": "Machines",
+   "ledgers": "Ledgers",
+   "missiles": "Missiles",
+   "sky": "Sky",
+   "ballots": "Ballots"
+  },
+  "true_odds": [
+   35,
+   45,
+   55,
+   68,
+   78,
+   65,
+   85,
+   90
+  ],
+  "decoy_odds": [
+   35,
+   35,
+   35,
+   35,
+   35,
+   50,
+   45,
+   45
+  ],
+  "herring": "missiles",
+  "herring_odds": [
+   35,
+   45,
+   60,
+   68,
+   55,
+   55,
+   40,
+   35
+  ],
+  "headlines": {
+   "1": [
+    "Quake swarm off the coast (Faultline)",
+    "Hospital surge drill (Fevers)"
+   ],
+   "2": [
+    "Card outage at three chains (Ledgers)"
+   ],
+   "3": [
+    "Shipping lane shut (Missiles)"
+   ],
+   "4": [
+    "Satellite operators report upsets (Sky)",
+    "Rival winners claimed in two states (Ballots)"
+   ],
+   "5": [
+    "Screening at the airport (Fevers)",
+    "Slow slip under the coast (Faultline)"
+   ],
+   "6": [
+    "Alert levels rise (Missiles)",
+    "Fab lockdown in the valley (Machines)",
+    "Utility ransomware (Ledgers)"
+   ],
+   "7": [
+    "Generals pick sides on TV (Ballots)",
+    "Grid hearing on hardening (Sky)"
+   ],
+   "8": [
+    "All seven threads at once"
+   ]
+  }
+ }
+}

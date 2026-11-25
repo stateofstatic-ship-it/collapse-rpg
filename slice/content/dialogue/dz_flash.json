@@ -1,0 +1,26 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "TV Highway, 5:12 pm",
+   "text": "Stop-and-go traffic on TV Highway, low cloud, the light going. Then the overcast goes white from one horizon to the other, without a sound, like someone opened a door in the sky.\n\nYour engine dies. So does the radio, the dashboard, the car ahead of you and the one behind. Every brake light on the highway goes out at once. A few blocks north the light rail train glides to a stop and sits there, dark.\n\nThe cloud is glowing now, a dull red going green at the edges. It will keep glowing for twelve minutes.",
+   "options": [
+    {
+     "text": "Get out of the car.",
+     "next": "b"
+    }
+   ]
+  },
+  "b": {
+   "speaker": "TV Highway",
+   "text": "People are standing beside their cars, looking up, holding phones that don't do anything. Somewhere a car alarm is not going off, which is the strangest sound of all.\n\nNight is coming fast and there isn't a lit window anywhere. Your sight is down to two tiles.\n\nRead the signs before you decide what this is. Phones, cars, the sky. Then get home.",
+   "options": [
+    {
+     "text": "Look around.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "dz_flash"
+}

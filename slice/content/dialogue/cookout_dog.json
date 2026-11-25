@@ -1,0 +1,95 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "Fireworks",
+   "text": "Somebody's cousin lights a fountain at the end of the court. A big shepherd mix bolts its leash and comes straight down the sidewalk at {dog.name}, hackles up.\n\n{teen.name} is watching you, not the dogs.",
+   "options": [
+    {
+     "text": "Throw your jacket over its head and hold on.",
+     "family": "fix",
+     "gate": [
+      "fieldcraft",
+      20
+     ],
+     "effects": [
+      [
+       "habit",
+       "steady hands"
+      ],
+      [
+       "mercy",
+       1
+      ]
+     ],
+     "fail": "bitten",
+     "fail_effects": [
+      [
+       "strain",
+       "hero",
+       8
+      ]
+     ],
+     "next": "calm"
+    },
+    {
+     "text": "Call {dog.name} back and step between them.",
+     "family": "talk",
+     "effects": [
+      [
+       "habit",
+       "step between"
+      ]
+     ],
+     "next": "calm"
+    },
+    {
+     "text": "Shove the shepherd hard into the hedge.",
+     "family": "fight",
+     "effects": [
+      [
+       "habit",
+       "hit first"
+      ],
+      [
+       "mercy",
+       -1
+      ]
+     ],
+     "next": "shove"
+    }
+   ]
+  },
+  "calm": {
+   "speaker": "Fireworks",
+   "text": "The shepherd's owner arrives at a run, red-faced and apologizing. Nobody bleeds. {teen.name} files it away: when things break, this is what we do.",
+   "options": [
+    {
+     "text": "Back to the table.",
+     "next": "end"
+    }
+   ]
+  },
+  "bitten": {
+   "speaker": "Fireworks",
+   "text": "The jacket slips and the dog gets a mouthful of your forearm before its owner drags it off. Nothing deep. Your heart takes longer to slow than your arm does. (+8 Strain.) A missed gate never dead-ends a scene.",
+   "options": [
+    {
+     "text": "Back to the table.",
+     "next": "end"
+    }
+   ]
+  },
+  "shove": {
+   "speaker": "Fireworks",
+   "text": "It yelps and runs. The owner gives you a look you will see again. {teen.name} files it away too.",
+   "options": [
+    {
+     "text": "Back to the table.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "cookout_dog"
+}

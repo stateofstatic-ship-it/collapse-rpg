@@ -1,0 +1,172 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "Sorrel House, Forest Grove",
+   "route": [
+    {
+     "cond": [
+      [
+       "not_where",
+       "elder",
+       "sorrel"
+      ]
+     ],
+     "next": "gone"
+    }
+   ],
+   "text": "The care home is lit by battery lanterns and the night nurse is alone with thirty-one residents. She won't release anyone without papers. \"I'm sorry. I've got people on oxygen and no power. I can't have families just taking whoever they want.\"\n\n{elder.name} is in the lobby in a coat, with a bag packed.",
+   "options": [
+    {
+     "text": "Show the power of attorney from Paper Day.",
+     "family": "talk",
+     "cond": [
+      [
+       "flag",
+       "poa"
+      ]
+     ],
+     "effects": [
+      [
+       "where",
+       "elder",
+       "@hero"
+      ],
+      [
+       "log",
+       "Sorrel House released {elder.name} on the power of attorney."
+      ]
+     ],
+     "next": "out"
+    },
+    {
+     "text": "\"You've got thirty-one people and one pair of hands. One less is one less.\"",
+     "family": "talk",
+     "gate": [
+      "negotiation",
+      35
+     ],
+     "effects": [
+      [
+       "where",
+       "elder",
+       "@hero"
+      ]
+     ],
+     "next": "out",
+     "fail": "wait"
+    },
+    {
+     "text": "Walk {elder.name} out the side door past the night desk.",
+     "family": "sneak",
+     "gate": [
+      "stealth",
+      30
+     ],
+     "effects": [
+      [
+       "where",
+       "elder",
+       "@hero"
+      ],
+      [
+       "profile",
+       1
+      ]
+     ],
+     "next": "out_sneak",
+     "fail": "caught"
+    },
+    {
+     "text": "Come back in the morning when the day staff arrive.",
+     "family": "talk",
+     "next": "wait"
+    }
+   ]
+  },
+  "out": {
+   "speaker": "{elder.name}",
+   "text": "\"Took you long enough.\" {elder.name} hugs you with one arm and grips a cane with the other. \"Linemen's card's in my wallet. Thirty-eight years. If they ever restart anything around here, they'll want somebody who remembers how.\"",
+   "options": [
+    {
+     "text": "Go.",
+     "effects": [
+      [
+       "flag",
+       "lineman_card"
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  },
+  "out_sneak": {
+   "speaker": "{elder.name}",
+   "text": "\"Like old times,\" {elder.name} whispers, delighted, and nearly trips on the threshold. Out in the dark: \"Linemen's card's in my wallet. Somebody'll want it.\" Note: {elder.name} walks one tile per AP and slows a bicycle to 25 miles a day.",
+   "options": [
+    {
+     "text": "Go.",
+     "effects": [
+      [
+       "flag",
+       "lineman_card"
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  },
+  "caught": {
+   "speaker": "Night nurse",
+   "text": "\"No.\" She is in the hallway with her arms folded. \"Come back with the day staff, or with papers.\" (+5 Strain.)",
+   "options": [
+    {
+     "text": "All right.",
+     "effects": [
+      [
+       "strain",
+       "hero",
+       5
+      ]
+     ],
+     "next": "wait"
+    }
+   ]
+  },
+  "wait": {
+   "speaker": "Sorrel House",
+   "text": "You sleep in a lobby chair beside {elder.name}. In the morning the day staff release residents to anyone with a matching surname. You lose the night.",
+   "options": [
+    {
+     "text": "Go, in the morning.",
+     "effects": [
+      [
+       "wait_morning"
+      ],
+      [
+       "where",
+       "elder",
+       "@hero"
+      ],
+      [
+       "flag",
+       "lineman_card"
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  },
+  "gone": {
+   "speaker": "Sorrel House",
+   "text": "{elder.name}'s room is empty and the bed is made.",
+   "options": [
+    {
+     "text": "Back.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "sorrel"
+}

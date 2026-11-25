@@ -1,0 +1,16 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "Thimbleberry Court",
+   "text": "{home_report}",
+   "options": [
+    {
+     "text": "Continue.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "home_return"
+}

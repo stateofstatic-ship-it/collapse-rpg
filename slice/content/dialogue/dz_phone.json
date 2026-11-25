@@ -1,0 +1,43 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "Your phone",
+   "route": [
+    {
+     "cond": [
+      [
+       "clue",
+       "phones"
+      ]
+     ],
+     "next": "seen"
+    }
+   ],
+   "text": "Black. You hold the button and it does nothing. The woman next to you has a phone that lights up and shows no service, not even emergency calls. Half the phones on this block are dead; the rest can't find a tower.\n\nIt isn't the bank or the network. Something reached into the hardware itself.",
+   "options": [
+    {
+     "text": "Noted.",
+     "effects": [
+      [
+       "clue",
+       "phones"
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  },
+  "seen": {
+   "speaker": "Your phone",
+   "text": "Still black.",
+   "options": [
+    {
+     "text": "Put it away.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "dz_phone"
+}
