@@ -177,6 +177,9 @@ func show_family_screen() -> void:
 	s.phase = "family"
 	var body := UI.page(m.screen, "Your family")
 	UI.rich("Name everyone, or roll names. Choose each person's gender, pronouns and heritage preset; members never have to match. No rule in the game reads gender or heritage. Roles stay fixed because the story needs them.", body, 15)
+	UI.button("Quick start: skip setup with the default family", func() -> void:
+		quick_defaults()
+		finish_family(), body, 300)
 	var r := RandomNumberGenerator.new()
 	r.randomize()
 	var top := UI.hbox(body)

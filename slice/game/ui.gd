@@ -66,13 +66,17 @@ static func _make_theme() -> Theme:
 	th.set_constant("separation", "VBoxContainer", dp(8))
 	th.set_constant("separation", "HBoxContainer", dp(8))
 	th.set_stylebox("panel", "TooltipPanel", _box(PAPER, INK, 2, 6))
-	var grab := _box(Color(0.55, 0.45, 0.32), Color(0.55, 0.45, 0.32), 3, 0)
-	grab.content_margin_left = dp(6)
-	grab.content_margin_right = dp(6)
+	# Wide and dark enough to see and to grab with a finger.
+	var grab := _box(Color(0.42, 0.32, 0.2), Color(0.42, 0.32, 0.2), 4, 0)
+	grab.content_margin_left = dp(10)
+	grab.content_margin_right = dp(10)
 	th.set_stylebox("grabber", "VScrollBar", grab)
 	th.set_stylebox("grabber_highlight", "VScrollBar", grab)
 	th.set_stylebox("grabber_pressed", "VScrollBar", grab)
-	th.set_stylebox("scroll", "VScrollBar", _box(Color(0.8, 0.76, 0.66), Color(0.8, 0.76, 0.66), 3, 0))
+	var track := _box(Color(0.74, 0.68, 0.56), Color(0.74, 0.68, 0.56), 4, 0)
+	track.content_margin_left = dp(10)
+	track.content_margin_right = dp(10)
+	th.set_stylebox("scroll", "VScrollBar", track)
 	return th
 
 

@@ -3,7 +3,7 @@ extends Node
 ## bar, saves and play-time telemetry. Rules live in core/; this file only
 ## shows state and sends commands (tech.md presentation layer).
 
-const VERSION := "slice-1"
+const VERSION := "slice-2"
 const SAVE_PATH := "user://slice_save.json"
 const RENDER_SCALE := 0.67
 
@@ -98,6 +98,12 @@ func _shot_later(spec: String) -> void:
 		overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		dlg = null
 	await get_tree().create_timer(2.5).timeout
+	if OS.has_environment("DRAG_TEST"):
+		await _drag_test()
+	if OS.has_environment("SHOT_PROBE"):
+		for sc in screen.find_children("*", "ScrollContainer", true, false):
+			var bar: VScrollBar = sc.get_v_scroll_bar()
+			print("PROBE scroll size=", sc.size, " pos=", sc.global_position, " bar max=", bar.max_value, " page=", bar.page, " visible=", bar.visible, " vmode=", sc.vertical_scroll_mode, " filter=", sc.mouse_filter)
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png(parts[1])
 	get_tree().quit()
@@ -110,6 +116,62 @@ func _on_resize() -> void:
 	container.size = sz * RENDER_SCALE
 	if world != null and world.has_method("set_view"):
 		world.set_view(RENDER_SCALE, sz.y)
+
+
+# ------------------------------------------------------------------ drag scrolling
+## Drag anywhere on a scrolling page (finger, pen or mouse) to scroll it, even when
+## the drag starts on a button. A drag past the threshold cancels that button's tap.
+var _drag_sc: ScrollContainer = null
+var _drag_from := Vector2.ZERO
+var _drag_start_scroll := 0
+var _drag_active := false
+var _drag_buttons: Array = []
+
+
+func _input(e: InputEvent) -> void:
+	if e is InputEventMouseButton and e.button_index == MOUSE_BUTTON_LEFT:
+		if e.pressed:
+			_drag_sc = null
+			_drag_active = false
+			_drag_buttons = []
+			# Topmost scrollable page under the pointer: the overlay first, then the screen.
+			for root in [overlay, screen]:
+				var found: Array = root.find_children("*", "ScrollContainer", true, false)
+				found.reverse()
+				for sc in found:
+					if sc.is_visible_in_tree() and sc.get_global_rect().has_point(e.position) and sc.get_v_scroll_bar().max_value > sc.size.y + 1.0:
+						_drag_sc = sc
+						break
+				if _drag_sc != null:
+					break
+			if _drag_sc != null:
+				_drag_from = e.position
+				_drag_start_scroll = _drag_sc.scroll_vertical
+				for b in _drag_sc.find_children("*", "BaseButton", true, false):
+					if b.is_visible_in_tree() and b.get_global_rect().has_point(e.position):
+						_drag_buttons.append(b)
+		else:
+			if _drag_active:
+				# Swallow the tap: a disabled button ignores this release.
+				for b in _drag_buttons:
+					if is_instance_valid(b) and not b.disabled:
+						b.disabled = true
+						(func() -> void:
+							if is_instance_valid(b):
+								b.disabled = false).call_deferred()
+			_drag_sc = null
+			_drag_active = false
+	elif e is InputEventMouseMotion and _drag_sc != null and is_instance_valid(_drag_sc):
+		var dy: float = e.position.y - _drag_from.y
+		if not _drag_active and absf(dy) > UI.dp(14):
+			_drag_active = true
+		if _drag_active:
+			var sc := _drag_sc
+			var target := int(_drag_start_scroll - dy)
+			# Deferred so it lands after any scrolling the container did itself.
+			(func() -> void:
+				if is_instance_valid(sc):
+					sc.scroll_vertical = target).call_deferred()
 
 
 func _process(delta: float) -> void:
@@ -467,3 +529,45 @@ func show_title() -> void:
 			else:
 				toast("That save could not be read."), body, 240)
 	UI.label("Touch: tap once to preview, tap again to commit. Keyboard: arrows or WASD to move, E to use, Enter to choose. In fights: Tab target, F quick shot, G aimed, C Call Out, B breath, Enter end turn.", body, 14, Color(0.35, 0.3, 0.25))
+
+
+## Agent check (DRAG_TEST=1 with --shot=family): drag from a button up 300 px.
+func _drag_test() -> void:
+	var sc: ScrollContainer = screen.find_children("*", "ScrollContainer", true, false)[0]
+	var fired := [false]
+	var btn: Button = null
+	for b in sc.find_children("*", "Button", true, false):
+		if b.is_visible_in_tree() and sc.get_global_rect().encloses(b.get_global_rect()) and b.text == "Roll" and b.get_global_rect().get_center().y > 500:
+			btn = b
+			break
+	btn.pressed.connect(func() -> void: fired[0] = true)
+	var p := btn.get_global_rect().get_center()
+	var names_before: String = btn.get_parent().get_child(0).text if btn.get_parent().get_child(0) is LineEdit else ""
+	for step in [["down", p], ["move", p + Vector2(0, -10)], ["move", p + Vector2(0, -150)], ["move", p + Vector2(0, -300)], ["up", p + Vector2(0, -300)]]:
+		var ev: InputEvent
+		if step[0] == "move":
+			ev = InputEventMouseMotion.new()
+			ev.button_mask = MOUSE_BUTTON_MASK_LEFT
+		else:
+			ev = InputEventMouseButton.new()
+			ev.button_index = MOUSE_BUTTON_LEFT
+			ev.pressed = step[0] == "down"
+		ev.position = step[1]
+		ev.global_position = step[1]
+		Input.parse_input_event(ev)
+		await get_tree().process_frame
+		await get_tree().process_frame
+	print("DRAGTEST scroll=", sc.scroll_vertical, " button_fired=", fired[0], " disabled_after=", btn.disabled)
+	# A plain tap still works.
+	fired[0] = false
+	var q := btn.get_global_rect().get_center()
+	for down in [true, false]:
+		var ev2 := InputEventMouseButton.new()
+		ev2.button_index = MOUSE_BUTTON_LEFT
+		ev2.pressed = down
+		ev2.position = q
+		ev2.global_position = q
+		Input.parse_input_event(ev2)
+		await get_tree().process_frame
+		await get_tree().process_frame
+	print("DRAGTEST tap_fired=", fired[0], " name_before=", names_before)
