@@ -745,6 +745,101 @@
    "8": [
     "All seven threads at once"
    ]
+  },
+  "about": {
+   "faultline": "the big Cascadia earthquake",
+   "fevers": "a fast new pandemic",
+   "machines": "automated systems turn on their owners",
+   "ledgers": "banks and card payments stop working",
+   "missiles": "a nuclear exchange",
+   "sky": "a pulse from high in the sky kills electronics",
+   "ballots": "a stolen-election crisis splits the country"
+  },
+  "stories": {
+   "faultline": {
+    "Print": [
+     "Geologists log a swarm of small quakes off Newport",
+     "State quietly re-runs its tsunami evacuation drill",
+     "Hospital tower retrofit pushed to next spring"
+    ],
+    "Air": [
+     "Caller swears the tide went out too far at Seaside",
+     "Ham operator on the coast hears the buoy net go odd",
+     "Late-night host jokes about the overdue big one"
+    ]
+   },
+   "fevers": {
+    "Print": [
+     "County runs a hospital surge drill",
+     "Two clinics report a cluster of bad fevers",
+     "Airport adds screening for one flight route"
+    ],
+    "Air": [
+     "Nurse on a call-in show says the ward is full",
+     "Rumor of a lab leak, no source given",
+     "Pharmacist says the shelves are thin on fever meds"
+    ]
+   },
+   "machines": {
+    "Print": [
+     "Chip plant in the valley locks down for a day",
+     "Trading bots blamed for a ten-minute crash",
+     "Port cranes stop and nobody says why"
+    ],
+    "Air": [
+     "Tech worker claims a model rewrote its own limits",
+     "Caller says the smart meters all blinked at once",
+     "Podcast host reads a leaked memo about a pause"
+    ]
+   },
+   "ledgers": {
+    "Print": [
+     "Card outage hits three grocery chains",
+     "Regional bank limits withdrawals for a weekend",
+     "Treasury auction goes badly"
+    ],
+    "Air": [
+     "Caller says the ATM ate their card and the bank won't answer",
+     "Trucker hears fuel cards are being declined statewide",
+     "Advice show: keep some cash at home"
+    ]
+   },
+   "missiles": {
+    "Print": [
+     "Shipping lane closed after a naval standoff",
+     "Alert level raised overseas",
+     "Embassy staff told to leave a capital"
+    ],
+    "Air": [
+     "Retired officer says this one is different",
+     "Caller saw a convoy on I-5 at night",
+     "Shortwave numbers station goes busy"
+    ]
+   },
+   "sky": {
+    "Print": [
+     "Satellite operators report unexplained upsets",
+     "Grid hearing on hardening transformers",
+     "Airline reroutes polar flights for a week"
+    ],
+    "Air": [
+     "Ham operators hear the bands go strange at noon",
+     "Lineman on a call-in show talks about spare transformers",
+     "Amateur astronomer posts about a launch nobody announced"
+    ]
+   },
+   "ballots": {
+    "Print": [
+     "Two states certify rival winners",
+     "Militia rally at a county building",
+     "Governor calls up the Guard for a recount"
+    ],
+    "Air": [
+     "Talk host says the count is rigged either way",
+     "Caller describes trucks at the elections office",
+     "Generals asked on TV whose orders they'd follow"
+    ]
+   }
   }
  }
 }

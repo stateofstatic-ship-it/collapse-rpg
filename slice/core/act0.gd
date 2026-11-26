@@ -49,7 +49,7 @@ static func spendable(s: GameState) -> int:
 ## Why an activity cannot be booked now, or "" if it can.
 static func blocker(s: GameState, a: Dictionary) -> String:
 	if int(a["blocks"]) > blocks_left(s):
-		return "Needs %d blocks" % int(a["blocks"])
+		return "Needs %d block%s of time" % [int(a["blocks"]), "" if int(a["blocks"]) == 1 else "s"]
 	if int(a["money"]) > spendable(s):
 		return "Needs $%d" % int(a["money"])
 	if a.has("last_week") and s.week > int(a["last_week"]):

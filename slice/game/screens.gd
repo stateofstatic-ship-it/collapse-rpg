@@ -480,11 +480,14 @@ func show_planner() -> void:
 	if not s.orders.is_empty():
 		UI.rich("[b]On order:[/b] " + ", ".join(s.orders.map(func(o: Dictionary) -> String: return "%s (week %d)" % [Act0.activity(o["activity"])["name"], int(o["arrive"])])), fv, 14)
 	var tools := UI.hbox(body)
-	UI.button("Signal Board (%d checks)" % Act0.checks_left(s), func() -> void: show_board(), tools, 200)
+	UI.button("Signal Board: what's coming?\n(%d looks left)" % Act0.checks_left(s), func() -> void: show_board(), tools, 240)
 	if s.has_vehicle():
 		UI.button("Garage", func() -> void: show_garage(show_planner), tools, 120)
 	var end_txt := "End week %d" % s.week if s.week < 8 else "To Halloween"
-	UI.button(end_txt + (" (%d blocks unused)" % Act0.blocks_left(s) if Act0.blocks_left(s) > 0 else ""), func() -> void: end_week(), tools, 220)
+	var end_b := UI.button(end_txt + (" (%d blocks unused)" % Act0.blocks_left(s) if Act0.blocks_left(s) > 0 else ""), func() -> void: end_week(), tools, 220)
+	if Act0.blocks_left(s) == 0:
+		end_b.modulate = Color(1.0, 0.85, 0.55)
+		UI.rich("[b]This week's time is used up.[/b] Everything below is greyed out until next week. Check the Signal Board if you have looks left, then tap [b]%s[/b]." % end_txt, body, 15)
 	var booked := s.week_log.filter(func(x: Dictionary) -> bool: return int(x["week"]) == s.week)
 	if not booked.is_empty():
 		UI.rich("[b]This week:[/b] " + ", ".join(booked.map(func(x: Dictionary) -> String: return s.fill(Act0.activity(x["id"])["name"]))), body, 15)
@@ -573,27 +576,53 @@ func show_last_pin() -> void:
 
 
 func show_board() -> void:
-	popup("The Signal Board", func(b: VBoxContainer) -> void:
+	popup("The Signal Board: what's coming?", func(b: VBoxContainer) -> void:
+		var t: Dictionary = Act0.threads()
 		var h := Act0.hunch(s)
 		var post := Act0.posterior(s)
-		UI.rich("Seven threads, two pins a week each, each secretly solid or smoke. Checking a pin spends a check (%d left this week). Air pins need Signals 20 or a radio. No Strong Lead shows before week 5.\n[b]Hunch:[/b] %s, %s (%d%%)" % [Act0.checks_left(s), Act0.threads()["names"][h["thread"]], h["label"], int(round(h["p"] * 100))], b, 15)
-		for th in Act0.threads()["names"]:
-			var row := UI.hbox(b, 4)
-			UI.label("%s %d%%" % [Act0.threads()["names"][th], int(round(float(post[th]) * 100))], row, 15).custom_minimum_size.x = UI.dp(130)
-			var flow := HFlowContainer.new()
-			flow.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			row.add_child(flow)
+		var radio_ok: bool = s.skill("hero", "signals") >= 20 or float(s.tracks["radio"]) >= 0.5
+		var guess_word: String = {"Murky": "too early to tell", "Leaning": "leaning that way", "Strong Lead": "a strong lead"}.get(h["label"], h["label"])
+		UI.rich("Something bad is coming this fall, and the news is full of warnings about seven different disasters. Most of the stories are noise; the ones that hold up point at the real one. Knowing which disaster is coming tells you what to prep for.\n\n[b]Look into a story[/b] to find out if it holds up. You get [b]%d more %s[/b] this week. Radio stories need a radio or Signals 20. Early on, every disaster makes headlines about equally, so the first weeks barely move the odds; the real one pulls ahead as fall goes on.\n\n[b]Your best guess so far:[/b] %s, %s (%s, %d%%)." % [Act0.checks_left(s), "look" if Act0.checks_left(s) == 1 else "looks", t["names"][h["thread"]], t["about"][h["thread"]], guess_word, int(round(h["p"] * 100))], b, 15)
+		var order: Array = t["names"].keys()
+		order.sort_custom(func(x, y) -> bool: return float(post[x]) > float(post[y]))
+		for th in order:
+			var pan := UI.panel(b)
+			var v := UI.vbox(pan, 4)
+			UI.rich("[b]%s[/b]: %s · [b]%d%%[/b] likely to be the one" % [t["names"][th], t["about"][th], int(round(float(post[th]) * 100))], v, 16)
 			var pins: Array = s.board.get(th, [])
-			for i in pins.size():
+			var held := 0
+			var nothing := 0
+			for i in range(pins.size() - 1, -1, -1):
 				var p: Dictionary = pins[i]
-				var txt := "W%d %s\n%s" % [int(p["week"]), p["kind"], ("solid" if p["solid"] else "smoke") if p["checked"] else "?"]
-				var bt := UI.button(txt, func() -> void:
-					if Act0.check_pin(s, th, i):
-						show_board()
-					else:
-						m.toast("No checks left, or an Air pin without a radio."), flow, 70)
+				var recent: bool = int(p["week"]) >= s.week - 1
+				if not recent:
+					if p["checked"]:
+						if p["solid"]:
+							held += 1
+						else:
+							nothing += 1
+					continue
+				var lines: Array = t["stories"][th][p["kind"]]
+				var story: String = lines[(int(p["week"]) - 1 + (0 if p["kind"] == "Print" else 1)) % lines.size()]
+				var row := UI.hbox(v, 6)
+				var src := "Paper" if p["kind"] == "Print" else "Radio"
+				UI.label("Week %d, %s: \"%s\"" % [int(p["week"]), src, story], row, 15)
 				if p["checked"]:
-					bt.modulate = Color(0.7, 1, 0.7) if p["solid"] else Color(1, 0.8, 0.8)
+					var res := UI.label("✔ Holds up" if p["solid"] else "✘ Nothing to it", row, 15, Color(0.2, 0.45, 0.2) if p["solid"] else Color(0.55, 0.2, 0.15))
+					res.autowrap_mode = TextServer.AUTOWRAP_OFF
+					res.size_flags_horizontal = Control.SIZE_SHRINK_END
+					res.custom_minimum_size.x = UI.dp(170)
+				else:
+					var idx := i
+					var locked: bool = p["kind"] == "Air" and not radio_ok
+					var bt := UI.button("Needs a radio" if locked else "Look into it", func() -> void:
+						if Act0.check_pin(s, th, idx):
+							show_board()
+						else:
+							m.toast("No looks left this week. More come next week."), row, 170)
+					bt.disabled = locked or Act0.checks_left(s) <= 0
+			if held + nothing > 0:
+				UI.label("Earlier weeks: %d held up, %d were nothing." % [held, nothing], v, 14, Color(0.35, 0.3, 0.25))
 	, func() -> void:
 		if s.phase == "act0":
 			show_planner())
@@ -1192,6 +1221,15 @@ func debug_scene(name: String) -> void:
 			s.items["food_bucket"] = 4
 			show_planner()
 			show_garage(show_planner)
+		"board":
+			quick_defaults()
+			finish_family()
+			show_planner()
+			Act0.check_pin(s, "sky", 0)
+			Act0.check_pin(s, "faultline", 0)
+			m.dlg = null
+			UI.clear(m.overlay)
+			show_board()
 		"summary":
 			quick_defaults()
 			finish_family()
