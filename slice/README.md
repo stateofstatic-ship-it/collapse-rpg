@@ -12,6 +12,11 @@ world render scale and a 30 fps cap. Art is the device-test gray box, not target
 - Touch: tap once to preview a move or target, tap again to commit. Keyboard: arrows
   or WASD move, Enter confirms; in a fight Tab cycles foes, F/G quick or aimed shot,
   C Call Out, B Take a Breath, Enter ends the turn.
+- Camera on the town map and in fights: pinch to zoom, drag one finger to look
+  around, twist two fingers to turn the map a quarter turn. With a mouse: wheel
+  zooms, drag pans, Q / R (or [ / ]) turn, + / - zoom, Home finds you. The buttons
+  on the right do the same. Buildings, trees and cars fade when they hide you,
+  a fighter or the tile you picked.
 - The game saves after every dialogue and on **Save**. At the end, the summary screen
   shows a report with **Copy report**: paste it back so real play minutes per segment
   can be compared with the bot's estimate.

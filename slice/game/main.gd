@@ -3,7 +3,7 @@ extends Node
 ## bar, saves and play-time telemetry. Rules live in core/; this file only
 ## shows state and sends commands (tech.md presentation layer).
 
-const VERSION := "slice-3"
+const VERSION := "slice-4"
 const SAVE_PATH := "user://slice_save.json"
 const RENDER_SCALE := 0.67
 
@@ -20,6 +20,7 @@ var overlay: Control
 var toast_label: Label
 var toast_t := 0.0
 var battle_bar: PanelContainer
+var view_bar: VBoxContainer
 var bview: BattleView = null
 var segment := "title"
 var seg_t := 0.0
@@ -60,6 +61,19 @@ func _ready() -> void:
 	battle_bar.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	battle_bar.visible = false
 	ui_root.add_child(battle_bar)
+	# World camera buttons (also: pinch, twist, wheel, drag, Q/R, +/-, Home).
+	view_bar = VBoxContainer.new()
+	view_bar.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	view_bar.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	view_bar.offset_top = UI.dp(110)
+	view_bar.offset_right = -UI.dp(8)
+	view_bar.add_theme_constant_override("separation", UI.dp(4))
+	view_bar.visible = false
+	ui_root.add_child(view_bar)
+	for spec in [["Turn\nleft", "turn", -1], ["Turn\nright", "turn", 1], ["+", "zoom", 1.25], ["-", "zoom", 0.8], ["Find\nme", "center", 0]]:
+		var b := UI.button(spec[0], func() -> void: _view_cmd(spec[1], spec[2]), view_bar, 64)
+		b.add_theme_font_size_override("font_size", UI.dp(14))
+		b.modulate.a = 0.85
 	overlay = Control.new()
 	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
 	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -98,6 +112,23 @@ func _shot_later(spec: String) -> void:
 		overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		dlg = null
 	await get_tree().create_timer(2.5).timeout
+	if OS.has_environment("TURN") and world != null and world.has_method("turn_view"):
+		var bad := 0
+		for k in int(OS.get_environment("TURN")):
+			world.turn_view(1)
+		await get_tree().process_frame
+		if world is Explore:
+			var ex: Explore = world
+			for cy in range(0, ex.size.y, 3):
+				for cx in range(0, ex.size.x, 3):
+					var cc := Vector2i(cx, cy)
+					var sp: Vector2 = ex.get_canvas_transform() * ex.cell_pos(cc)
+					if ex._screen_to_cell(sp) != cc:
+						bad += 1
+		print("TURNTEST rot=", world.rot, " tap_mismatches=", bad)
+		await get_tree().create_timer(1.0).timeout
+	if OS.has_environment("GESTURE_TEST") and world is Explore:
+		await _gesture_test()
 	if OS.has_environment("DRAG_TEST"):
 		await _drag_test()
 	if OS.has_environment("SHOT_PROBE"):
@@ -238,13 +269,27 @@ func clear_world() -> void:
 		world = null
 	bview = null
 	battle_bar.visible = false
+	view_bar.visible = false
 
 
 func host_world(n: Node2D) -> void:
 	clear_world()
 	world = n
 	vp.add_child(n)
+	view_bar.visible = n.has_method("turn_view")
 	_on_resize()
+
+
+func _view_cmd(kind: String, arg: Variant) -> void:
+	if world == null or not world.has_method("turn_view"):
+		return
+	match kind:
+		"turn":
+			world.turn_view(int(arg))
+		"zoom":
+			world.zoom_view(float(arg))
+		"center":
+			world.recenter()
 
 
 func clear_screen() -> void:
@@ -571,3 +616,57 @@ func _drag_test() -> void:
 		await get_tree().process_frame
 		await get_tree().process_frame
 	print("DRAGTEST tap_fired=", fired[0], " name_before=", names_before)
+
+
+func _touch(idx: int, p: Vector2, down: bool) -> void:
+	var e := InputEventScreenTouch.new()
+	e.index = idx
+	e.position = p
+	e.pressed = down
+	Input.parse_input_event(e)
+
+
+func _drag(idx: int, p: Vector2, rel: Vector2) -> void:
+	var e := InputEventScreenDrag.new()
+	e.index = idx
+	e.position = p
+	e.relative = rel
+	Input.parse_input_event(e)
+
+
+## Agent check (GESTURE_TEST=1 with --shot=court): pinch, twist, pan, tap.
+func _gesture_test() -> void:
+	UI.clear(overlay)
+	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	dlg = null
+	var ex: Explore = world
+	var c := Vector2(640, 420)
+	var z0 := ex.vcam.user_zoom
+	_touch(0, c - Vector2(100, 0), true)
+	_touch(1, c + Vector2(100, 0), true)
+	await get_tree().process_frame
+	_drag(1, c + Vector2(200, 0), Vector2(100, 0))
+	await get_tree().process_frame
+	print("GESTURE pinch zoom ", z0, " -> ", ex.vcam.user_zoom)
+	var r0 := ex.rot
+	for k in 6:
+		var a := deg_to_rad(10.0 * (k + 1))
+		_drag(1, c + Vector2(cos(a), sin(a)) * 200.0, Vector2.ZERO)
+		await get_tree().process_frame
+	print("GESTURE twist rot ", r0, " -> ", ex.rot)
+	_touch(1, c, false)
+	_touch(0, c, false)
+	await get_tree().process_frame
+	var cam0 := ex.camera.position
+	_touch(0, c, true)
+	for k in 5:
+		_drag(0, c + Vector2(20 * (k + 1), 0), Vector2(20, 0))
+		await get_tree().process_frame
+	_touch(0, c + Vector2(100, 0), false)
+	await get_tree().process_frame
+	print("GESTURE pan camera moved ", cam0.distance_to(ex.camera.position), " preview=", ex.preview_cell)
+	_touch(0, c + Vector2(0, 60), true)
+	await get_tree().process_frame
+	_touch(0, c + Vector2(0, 60), false)
+	await get_tree().process_frame
+	print("GESTURE tap preview=", ex.preview_cell, " target=", not ex.pending_target.is_empty())

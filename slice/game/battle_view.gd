@@ -19,7 +19,10 @@ var preview_cell := Vector2i(-1, -1)
 var selected_target := ""
 var animating := false
 var queue: Array = []
-var base_zoom := 1.0
+var vcam := ViewCam.new()
+var rot := 0
+var tiles: Dictionary = {}
+var props_placed: Array = []   # [{node, cell}]
 var log_lines: Array = []
 var aimed := false
 var floating: Array = []
@@ -36,7 +39,8 @@ func setup(state: GameState, combat: Combat) -> void:
 	var row := 2 if c.enc.get("tiles", "") == "concrete" else 1
 	for y in c.size.y:
 		for x in c.size.x:
-			ground.set_cell(Vector2i(x, y), 0, Vector2i(rng.randi() % 8, row if (x + y) % 5 != 0 else 3))
+			tiles[Vector2i(x, y)] = Vector2i(rng.randi() % 8, row if (x + y) % 5 != 0 else 3)
+	_paint_ground()
 	overlay = Node2D.new()
 	overlay.z_index = 1
 	overlay.draw.connect(_draw_overlay)
@@ -54,14 +58,15 @@ func setup(state: GameState, combat: Combat) -> void:
 			sp.region_enabled = true
 			sp.region_rect = Rect2(slot % 8 * 256, 1024 + slot / 8 * 256, 256, 256)
 			sp.offset = Vector2(0, -112)
-			sp.position = ground.map_to_local(Vector2i(int(cell[0]), int(cell[1])))
+			sp.position = cpos(Vector2i(int(cell[0]), int(cell[1])))
 			sorted.add_child(sp)
+			props_placed.append({"node": sp, "cell": Vector2i(int(cell[0]), int(cell[1]))})
 	var cm := CanvasModulate.new()
 	cm.color = Color(0.35, 0.38, 0.5) if c.night else Color(0.95, 0.93, 0.9)
 	add_child(cm)
 	for u in c.units:
 		var n := Node2D.new()
-		n.position = ground.map_to_local(u["cell"])
+		n.position = cpos(u["cell"])
 		var layered: bool = u["role"] == "hero"
 		var names: Array = ["layer_body", "layer_outfit", "layer_item"] if layered else [u["look"]]
 		for tn in names:
@@ -86,8 +91,9 @@ func setup(state: GameState, combat: Combat) -> void:
 		sorted.add_child(n)
 		nodes[u["id"]] = n
 	camera = Camera2D.new()
-	camera.zoom = Vector2.ONE * base_zoom
-	camera.position = ground.map_to_local(c.size / 2)
+	vcam.camera = camera
+	vcam.apply_zoom()
+	camera.position = cpos(c.size / 2)
 	add_child(camera)
 	camera.make_current()
 	_consume_events()
@@ -95,9 +101,56 @@ func setup(state: GameState, combat: Combat) -> void:
 
 
 func set_view(render_scale: float, screen_h: float) -> void:
-	base_zoom = screen_h * render_scale / 1080.0 * 0.85
-	if camera != null:
-		camera.zoom = Vector2.ONE * base_zoom
+	vcam.base_zoom = screen_h * render_scale / 1080.0 * 0.85
+	vcam.apply_zoom()
+
+
+func cpos(cell: Vector2i) -> Vector2:
+	return ground.map_to_local(ViewCam.rot_cell(cell, rot, c.size.x, c.size.y))
+
+
+func _paint_ground() -> void:
+	ground.clear()
+	for cell in tiles:
+		ground.set_cell(ViewCam.rot_cell(cell, rot, c.size.x, c.size.y), 0, tiles[cell])
+
+
+## Turn the fight map a quarter turn; waits for animations to finish.
+func turn_view(dir: int) -> void:
+	if animating:
+		return
+	rot = posmod(rot + dir, 4)
+	_paint_ground()
+	for pp in props_placed:
+		pp["node"].position = cpos(pp["cell"])
+	for u in c.units:
+		if nodes.has(u["id"]):
+			nodes[u["id"]].position = cpos(u["cell"])
+	camera.position = cpos(c.size / 2)
+	overlay.queue_redraw()
+
+
+func zoom_view(f: float) -> void:
+	vcam.zoom_by(f)
+
+
+func recenter() -> void:
+	camera.position = cpos(c.active()["cell"]) if c.outcome == "" else cpos(c.size / 2)
+
+
+func _process(delta: float) -> void:
+	if c == null:
+		return
+	var pts: Array = []
+	for u in c.units:
+		if nodes.has(u["id"]) and u["state"] == "ok":
+			pts.append(nodes[u["id"]].position + Vector2(0, -50))
+	if preview_cell.x >= 0:
+		pts.append(cpos(preview_cell))
+	var sprites: Array = []
+	for pp in props_placed:
+		sprites.append(pp["node"])
+	ViewCam.fade_occluders(sprites, pts, delta)
 
 
 func _refresh() -> void:
@@ -207,7 +260,7 @@ func _next_event() -> void:
 			var tw := create_tween()
 			var p: Array = e["path"]
 			for i in range(1, p.size()):
-				tw.tween_property(n, "position", ground.map_to_local(p[i]), 0.12)
+				tw.tween_property(n, "position", cpos(p[i]), 0.12)
 			tw.tween_callback(_next_event)
 		"attack":
 			var from: Node2D = nodes[e["from"]]
@@ -266,12 +319,14 @@ func _float(p: Vector2, txt: String, col: Color) -> void:
 func _unhandled_input(e: InputEvent) -> void:
 	if not visible:
 		return
-	var p := Vector2(-1, -1)
-	if e is InputEventScreenTouch and not e.pressed:
-		p = e.position
-	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT and not DisplayServer.is_touchscreen_available():
-		p = e.position
-	elif e is InputEventKey and e.pressed and not e.echo:
+	var g := vcam.handle(e)
+	if g["turn"] != 0:
+		turn_view(g["turn"])
+		return
+	if g["recenter"]:
+		recenter()
+		return
+	if e is InputEventKey and e.pressed and not e.echo:
 		match e.keycode:
 			KEY_TAB:
 				_cycle_target()
@@ -286,10 +341,10 @@ func _unhandled_input(e: InputEvent) -> void:
 			KEY_ENTER, KEY_SPACE:
 				do_end_turn()
 		return
-	if p.x < 0:
+	if g["tap"] == null:
 		return
-	var world := get_canvas_transform().affine_inverse() * p
-	tap_cell(ground.local_to_map(ground.to_local(world)))
+	var world := get_canvas_transform().affine_inverse() * (g["tap"] as Vector2)
+	tap_cell(ViewCam.unrot_cell(ground.local_to_map(ground.to_local(world)), rot, c.size.x, c.size.y))
 
 
 func _cycle_target() -> void:
@@ -320,7 +375,7 @@ func _draw_overlay() -> void:
 
 
 func _diamond(cell: Vector2i, col: Color, outline: bool) -> void:
-	var p := ground.map_to_local(cell)
+	var p := cpos(cell)
 	var pts := PackedVector2Array([p + Vector2(0, -30), p + Vector2(62, 0), p + Vector2(0, 30), p + Vector2(-62, 0)])
 	if outline:
 		pts.append(p + Vector2(0, -30))

@@ -30,10 +30,12 @@ var pending_target: Dictionary = {}
 var targets: Array = []          # [{kind, data, cell, node}]
 var visited: Dictionary = {}
 var lit := false
-var base_zoom := 1.0
-var user_zoom := 1.0
-var touches: Dictionary = {}
-var drag_moved := 0.0
+var vcam := ViewCam.new()
+var rot := 0                     # quarter turns of the view, clockwise
+var follow := true               # camera follows the hero until the player pans
+var tiles: Dictionary = {}       # cell -> atlas coords, kept so the map can be turned
+var buildings: Array = []        # [{node, cell}] cell is the footprint's front anchor
+var statics: Array = []          # [{node, cell}] trees, lamps, cars, crates
 var busy := false
 var anim_t := 0.0
 
@@ -57,7 +59,8 @@ func setup(state: GameState, map_id: String, variant_id: String) -> void:
 	night_mod = CanvasModulate.new()
 	add_child(night_mod)
 	camera = Camera2D.new()
-	camera.zoom = Vector2.ONE * base_zoom * user_zoom
+	vcam.camera = camera
+	vcam.apply_zoom()
 	add_child(camera)
 	camera.make_current()
 	astar.region = Rect2i(Vector2i.ZERO, size)
@@ -73,10 +76,11 @@ func setup(state: GameState, map_id: String, variant_id: String) -> void:
 			var ch := row[x]
 			var c := Vector2i(x, y)
 			var tile_row := {".": 0, "T": 0, "H": 0, "=": 1, "c": 1, "-": 2, "l": 2, ",": 3, "x": 2}.get(ch, 0)
-			ground.set_cell(c, 0, Vector2i(rng.randi() % 8, tile_row))
+			tiles[c] = Vector2i(rng.randi() % 8, tile_row)
 			match ch:
 				"H":
-					_prop(Rect2(bi % 4 * 512, 0, 512, 1024), Vector2(0, -488), cell_pos(c))
+					var bsp := _prop(Rect2(bi % 4 * 512, 0, 512, 1024), Vector2(0, -488), Vector2.ZERO)
+					buildings.append({"node": bsp, "cell": c})
 					bi += 1
 					for dy in range(-4, 1):
 						for dx in range(-4, 1):
@@ -85,8 +89,10 @@ func setup(state: GameState, map_id: String, variant_id: String) -> void:
 								astar.set_point_solid(b)
 				"T", "l", "c", "x":
 					var kind: String = {"T": "tree", "l": "lamp", "c": "car", "x": "crate"}[ch]
-					_small_prop(kind, c, rng)
+					statics.append({"node": _small_prop(kind, c, rng), "cell": c})
 					astar.set_point_solid(c)
+	_paint_ground()
+	_place_buildings()
 	hero_cell = Vector2i(int(variant["spawn"][0]), int(variant["spawn"][1]))
 	hero = _person("layer_body", hero_cell, s.members["hero"], true)
 	_place_targets()
@@ -195,13 +201,59 @@ func refresh_targets() -> void:
 
 
 func cell_pos(c: Vector2i) -> Vector2:
-	return ground.map_to_local(c)
+	return ground.map_to_local(ViewCam.rot_cell(c, rot, size.x, size.y))
+
+
+func _paint_ground() -> void:
+	ground.clear()
+	for c in tiles:
+		ground.set_cell(ViewCam.rot_cell(c, rot, size.x, size.y), 0, tiles[c])
+
+
+## A building covers the 5x5 cells behind its anchor; after a turn, its sprite
+## sits on whichever footprint cell is now nearest the viewer.
+func _place_buildings() -> void:
+	for b in buildings:
+		var best := Vector2i.ZERO
+		var bs := -999999
+		for dy in range(-4, 1):
+			for dx in range(-4, 1):
+				var d := ViewCam.rot_cell(b["cell"] + Vector2i(dx, dy), rot, size.x, size.y)
+				if d.x + d.y > bs:
+					bs = d.x + d.y
+					best = d
+		b["node"].position = ground.map_to_local(best)
+
+
+## Turn the map a quarter turn (dir +1 clockwise, -1 counter-clockwise).
+func turn_view(dir: int) -> void:
+	if busy:
+		return
+	rot = posmod(rot + dir, 4)
+	_paint_ground()
+	_place_buildings()
+	for st in statics:
+		st["node"].position = cell_pos(st["cell"])
+	for t in targets:
+		if t["node"] != null:
+			t["node"].position = cell_pos(t["cell"])
+	hero.position = cell_pos(hero_cell)
+	follow = true
+	camera.position = hero.position
+	overlay.queue_redraw()
+
+
+func zoom_view(f: float) -> void:
+	vcam.zoom_by(f)
+
+
+func recenter() -> void:
+	follow = true
 
 
 func set_view(render_scale: float, screen_h: float) -> void:
-	base_zoom = screen_h * render_scale / 1080.0 * 0.9
-	if camera != null:
-		camera.zoom = Vector2.ONE * base_zoom * user_zoom
+	vcam.base_zoom = screen_h * render_scale / 1080.0 * 0.9
+	vcam.apply_zoom()
 
 
 # ------------------------------------------------------------------ input
@@ -273,6 +325,7 @@ func _walk(p: Array, then: Dictionary = {}) -> void:
 			_arrive(then)
 		return
 	busy = true
+	follow = true
 	var tw := create_tween()
 	for i in range(1, p.size()):
 		var c: Vector2i = p[i]
@@ -313,38 +366,38 @@ func _arrive(t: Dictionary) -> void:
 func _process(delta: float) -> void:
 	anim_t = fmod(anim_t + delta * 12.0, 12.0)
 	if hero != null:
-		camera.position = camera.position.lerp(hero.position, minf(1.0, delta * 6.0))
+		if follow:
+			camera.position = camera.position.lerp(hero.position, minf(1.0, delta * 6.0))
+		var pts: Array = [hero.position + Vector2(0, -60)]
+		if preview_cell.x >= 0:
+			pts.append(cell_pos(preview_cell))
+		if not pending_target.is_empty():
+			pts.append(cell_pos(pending_target["cell"]) + Vector2(0, -40))
+		var sprites: Array = []
+		for b in buildings:
+			sprites.append(b["node"])
+		for st in statics:
+			sprites.append(st["node"])
+		ViewCam.fade_occluders(sprites, pts, delta)
 
 
 func _unhandled_input(e: InputEvent) -> void:
 	if not visible:
 		return
-	if e is InputEventScreenTouch:
-		if e.pressed:
-			touches[e.index] = e.position
-			drag_moved = 0.0
-		else:
-			touches.erase(e.index)
-			if touches.is_empty() and drag_moved < UI.dp(12):
-				tap_cell(_screen_to_cell(e.position))
-	elif e is InputEventScreenDrag:
-		touches[e.index] = e.position
-		drag_moved += e.relative.length()
-		if touches.size() >= 2:
-			var k := touches.keys()
-			var dd := (touches[k[0]] as Vector2).distance_to(touches[k[1]])
-			user_zoom = clampf(dd / UI.dp(300), 0.7, 2.0)
-			camera.zoom = Vector2.ONE * base_zoom * user_zoom
-	elif e is InputEventMouseButton and e.pressed and not DisplayServer.is_touchscreen_available():
-		if e.button_index == MOUSE_BUTTON_LEFT:
-			tap_cell(_screen_to_cell(e.position))
-		elif e.button_index == MOUSE_BUTTON_WHEEL_UP:
-			user_zoom = clampf(user_zoom * 1.1, 0.7, 2.0)
-			camera.zoom = Vector2.ONE * base_zoom * user_zoom
-		elif e.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-			user_zoom = clampf(user_zoom / 1.1, 0.7, 2.0)
-			camera.zoom = Vector2.ONE * base_zoom * user_zoom
-	elif e is InputEventKey and e.pressed and not e.echo and not busy:
+	var g := vcam.handle(e)
+	if g["tap"] != null:
+		tap_cell(_screen_to_cell(g["tap"]))
+		return
+	if g["turn"] != 0:
+		turn_view(g["turn"])
+		return
+	if g["panned"]:
+		follow = false
+		return
+	if g["recenter"]:
+		recenter()
+		return
+	if e is InputEventKey and e.pressed and not e.echo and not busy:
 		var dir := Vector2i.ZERO
 		match e.keycode:
 			KEY_UP, KEY_W:
@@ -359,6 +412,7 @@ func _unhandled_input(e: InputEvent) -> void:
 				_interact_nearest()
 				return
 		if dir != Vector2i.ZERO:
+			dir = ViewCam.unrot_dir(dir, rot)
 			var n := hero_cell + dir
 			if astar.is_in_boundsv(n) and not astar.is_point_solid(n):
 				_walk([hero_cell, n])
@@ -386,7 +440,7 @@ func _interact_nearest() -> void:
 
 func _screen_to_cell(p: Vector2) -> Vector2i:
 	var world := get_canvas_transform().affine_inverse() * p
-	return ground.local_to_map(ground.to_local(world))
+	return ViewCam.unrot_cell(ground.local_to_map(ground.to_local(world)), rot, size.x, size.y)
 
 
 func _draw_overlay() -> void:
