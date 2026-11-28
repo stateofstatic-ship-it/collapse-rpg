@@ -2,31 +2,31 @@
   "failures": [],
   "personas": {
     "fighter": {
-      "bedrock_mean": 5.0,
+      "bedrock_mean": 4.0,
       "end_states": {
         "all_home/common_pantry": 4
       },
       "mean_minutes": {
-        "act0": 26.5,
-        "act1": 7.4,
+        "act0": 25.2,
+        "act1": 8.4,
         "dayzero": 7.5,
         "family": 2.5,
-        "total": 43.9
+        "total": 43.6
       },
       "sample": {
-        "bedrock": 5,
-        "buyin": 86,
-        "hash": 1557961394,
+        "bedrock": 4,
+        "buyin": 82,
+        "hash": 4286850607,
         "kills": 3,
         "last_pin": "faultline",
         "m1": "all_home",
         "m2": "common_pantry",
         "minutes": {
-          "act0": 26.8,
-          "act1": 7.4,
+          "act0": 25.5,
+          "act1": 8.4,
           "dayzero": 7.5,
           "family": 2.5,
-          "total": 44.1
+          "total": 43.9
         },
         "persona": "fighter",
         "profile": 4,
@@ -34,44 +34,44 @@
         "vehicles": [
           "family_car:dead"
         ],
-        "words_read": 2125
+        "words_read": 2115
       }
     },
     "go_kit": {
-      "bedrock_mean": 2.0,
+      "bedrock_mean": 1.0,
       "end_states": {
         "all_home/house_alone": 4
       },
       "mean_minutes": {
-        "act0": 27.3,
-        "act1": 6.4,
+        "act0": 26.1,
+        "act1": 7.1,
         "dayzero": 7.5,
         "family": 2.5,
-        "total": 43.7
+        "total": 43.1
       },
       "sample": {
-        "bedrock": 2,
-        "buyin": 82,
-        "hash": 2682149477,
+        "bedrock": 1,
+        "buyin": 77,
+        "hash": 4213976881,
         "kills": 0,
         "last_pin": "missiles",
         "m1": "all_home",
         "m2": "house_alone",
         "minutes": {
-          "act0": 27.3,
-          "act1": 6.6,
+          "act0": 26.1,
+          "act1": 7.3,
           "dayzero": 7.5,
           "family": 2.5,
-          "total": 43.9
+          "total": 43.3
         },
         "persona": "go_kit",
-        "profile": 29,
+        "profile": 34,
         "seed": 1000,
         "vehicles": [
           "family_car:dead",
           "rig_90s:ok"
         ],
-        "words_read": 2343
+        "words_read": 2234
       }
     },
     "skeptic": {
@@ -80,26 +80,26 @@
         "all_home/house_alone": 4
       },
       "mean_minutes": {
-        "act0": 24.9,
+        "act0": 24.0,
         "act1": 6.4,
         "dayzero": 7.2,
         "family": 1.0,
-        "total": 39.4
+        "total": 38.6
       },
       "sample": {
         "bedrock": 1,
         "buyin": 86,
-        "hash": 2878393159,
+        "hash": 4279569185,
         "kills": 0,
         "last_pin": "faultline",
         "m1": "all_home",
         "m2": "house_alone",
         "minutes": {
-          "act0": 24.9,
+          "act0": 24.0,
           "act1": 6.4,
           "dayzero": 7.2,
           "family": 1.0,
-          "total": 39.4
+          "total": 38.6
         },
         "persona": "skeptic",
         "profile": 13,
@@ -107,7 +107,7 @@
         "vehicles": [
           "family_car:dead"
         ],
-        "words_read": 2087
+        "words_read": 1980
       }
     },
     "talker": {
@@ -116,26 +116,26 @@
         "all_home/common_pantry": 4
       },
       "mean_minutes": {
-        "act0": 26.0,
+        "act0": 24.8,
         "act1": 5.6,
         "dayzero": 7.3,
         "family": 2.5,
-        "total": 41.5
+        "total": 40.2
       },
       "sample": {
         "bedrock": 6,
-        "buyin": 85,
-        "hash": 3223157090,
+        "buyin": 83,
+        "hash": 1014566697,
         "kills": 0,
         "last_pin": "fevers",
         "m1": "all_home",
         "m2": "common_pantry",
         "minutes": {
-          "act0": 26.0,
+          "act0": 24.8,
           "act1": 5.6,
           "dayzero": 7.3,
           "family": 2.5,
-          "total": 41.5
+          "total": 40.2
         },
         "persona": "talker",
         "profile": 2,
@@ -143,7 +143,7 @@
         "vehicles": [
           "family_car:dead"
         ],
-        "words_read": 2188
+        "words_read": 2025
       }
     }
   },

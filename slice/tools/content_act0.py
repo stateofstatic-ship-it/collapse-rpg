@@ -151,3 +151,106 @@ D["breakfast"] = {"start": "a", "nodes": {
           "Breakfast. {partner.name} is late for the early shift and eating standing up. {elder.name} called from the care home in Forest Grove to complain about the oatmeal. {teen.name} is texting under the table. {child.name} wants to know why the sky looked green in a dream.\n\n"
           "\"I'll be home by seven,\" you say, and grab your keys, and the day is ordinary all the way to dusk.",
           "options": [{"text": "Drive to work.", "next": "end"}]}}}
+
+
+# ------------------------------------------------------------ weekly street tasks
+# Each Act 0 week puts one hands-on task on the street map that teaches a mechanic.
+
+# Split the Blow so the dark search happens between the outage and the night.
+_blow = D["the_blow"]
+D["the_blow_after"] = {"start": "rally", "nodes": {k: v for k, v in _blow["nodes"].items() if k != "a"}}
+D["the_blow_after"]["nodes"]["shortfall"]["options"] = [{"text": "Back to the street.", "next": "end"}]
+D["the_blow"] = {"start": "a", "nodes": {
+    "a": dict(_blow["nodes"]["a"], text=_blow["nodes"]["a"]["text"] + "\n\nThen {teen.name} shouts from the hall: {child.name} went out the back after {dog.name} when the lights died. Neither of them came back.",
+              options=[{"text": "Grab a light and go find them.", "next": "end"}])}}
+
+# Week 2: Ruth's check-on chain teaches gates, Make Do, family help and a delivery quest.
+D["ruth_chain"] = {"start": "a", "nodes": {
+    "a": {"speaker": "Ruth Pellow", "text":
+          "Ruth waves you up onto the porch. She has an index-card box on her knees.\n\n"
+          "\"The check-on chain. If the power goes, every house gets a knock inside a day. It only works if somebody walks it once so people believe in it. "
+          "I need a list of who runs on a plug: oxygen, insulin, a CPAP. And I need this card in Marisol Quan's hand. She stopped answering the door for me.\"",
+          "options": [
+              {"text": "\"Let me organize the whole list.\"", "family": "talk", "gate": ["leadership", 25],
+               "effects": [["trust", "pellow", 1], ["flag", "chain_list"]], "fail": "org_fail", "next": "org"},
+              {"text": "\"{partner.name} can tell you who's on what. Nurses know.\"", "family": "talk", "cond": [["buyin_role", "partner", 30]],
+               "effects": [["trust", "pellow", 1], ["flag", "chain_list"], ["buyin_role", "partner", 2]], "next": "family"},
+              {"text": "\"I'll carry the card to Marisol.\"", "family": "talk", "next": "card"},
+              {"text": "\"Not this week, Ruth.\"", "family": "talk", "next": "later"}]},
+    "org": {"speaker": "Ruth Pellow", "text":
+            "You have the list on two cards before her tea goes cold.\n\n"
+            "[How it works] That option was a skill check. Checks never roll dice: if your skill meets the number, it works. "
+            "If you are a little short, MAKE DO lets you push through anyway and costs Strain. A family member standing with you can Assist.",
+            "options": [{"text": "\"And the card for Marisol?\"", "next": "card"}]},
+    "org_fail": {"speaker": "Ruth Pellow", "text":
+                 "You get halfway and lose track of who is on what. Ruth takes the cards back, kindly.\n\n"
+                 "[How it works] You were too far short of that skill check, so it failed. Night Class or practice raises a skill; Make Do covers small gaps at a Strain cost.",
+                 "options": [{"text": "\"At least let me carry the card.\"", "next": "card"}]},
+    "family": {"speaker": "Ruth Pellow", "text":
+               "{partner.name} rattles off half the street from memory. Ruth writes fast.\n\n"
+               "[How it works] Some options only appear when a family member trusts you enough. That is Buy-in: time together raises it.",
+               "options": [{"text": "\"And the card for Marisol?\"", "next": "card"}]},
+    "card": {"speaker": "Ruth Pellow", "text":
+             "She presses a card into your hand: a phone tree, three names, a time to knock. \"West side, the house with the wind chimes. Tap her door.\"\n\n"
+             "[How it works] A task now sits in your Journal. The gold marker on the map shows where it goes.",
+             "options": [{"text": "Take the card.", "effects": [["flag", "quan_card"], ["quest", "quan_card", "open"], ["log", "Ruth's card: take it to Marisol Quan's door."]], "next": "end"}]},
+    "later": {"speaker": "Ruth Pellow", "text": "\"The street will still be here next week. Probably.\"",
+              "options": [{"text": "Leave.", "next": "end"}]}}}
+
+D["quan_card"] = {"start": "a", "nodes": {
+    "a": {"speaker": "Marisol Quan", "text":
+          "The door opens on the chain. Marisol is in scrubs from the overnight shift at the plant, and there is a hum from the back bedroom you recognize: a CPAP.\n\n\"Ruth sent you? She still does this?\"",
+          "options": [
+              {"text": "\"She does. If the power goes, somebody knocks here inside a day.\"", "family": "talk",
+               "effects": [["trust", "quan", 1], ["flag", "quan_done"], ["quest", "quan_card", "done"]], "next": "ok"},
+              {"text": "\"That's your CPAP running. Do you have a battery for it?\"", "family": "know", "gate": ["medicine", 20],
+               "effects": [["trust", "quan", 2], ["flag", "quan_done"], ["quest", "quan_card", "done"]], "fail": "ok",
+               "fail_effects": [["trust", "quan", 1], ["flag", "quan_done"], ["quest", "quan_card", "done"]], "next": "cpap"}]},
+    "ok": {"speaker": "Marisol Quan", "text": "She takes the card. \"Tell Ruth I'm sorry about the door.\"\n\nTask done. Trust with the Quans went up. Trusting households share, warn and help when it matters.",
+           "options": [{"text": "Back to the street.", "next": "end"}]},
+    "cpap": {"speaker": "Marisol Quan", "text": "Her shoulders drop. \"No. I've been meaning to.\" You talk her through a deep-cycle battery and an inverter for ten minutes on the step.\n\nNoticing what someone needs is worth more Trust than delivering the card.",
+             "options": [{"text": "Back to the street.", "next": "end"}]}}}
+
+# Week 3: Arlo's range day teaches the fight screen with a practice lane.
+D["arlo_range"] = {"start": "a", "nodes": {
+    "a": {"speaker": "Arlo Dunmore", "text":
+          "Arlo is loading a hard case into his trunk. \"Bought a rifle when they started talking about the wind season. Never fired it. The range out on 47 rents lanes. Come with? I'll cover the fee.\"",
+          "options": [
+              {"text": "\"Let's go.\"", "family": "fight", "effects": [["battle", "range"]], "next": "end"},
+              {"text": "\"Not my thing, Arlo.\"", "family": "talk", "next": "no"}]},
+    "no": {"speaker": "Arlo Dunmore", "text": "\"Suit yourself.\" He'll ask again.", "options": [{"text": "Leave.", "next": "end"}]}}}
+
+D["arlo_range_after"] = {"start": "a", "nodes": {
+    "a": {"speaker": "Arlo Dunmore", "text":
+          "\"You've done that before,\" Arlo says, which you haven't.\n\n"
+          "[How it works] Every action costs Action Points (AP). Quick shots are cheap; aimed shots cost more and hit more often. "
+          "Cover between you and a target cuts the odds. Tap a foe to see the exact chance before you commit. A hit 40 points under the odds is a solid hit for half again the damage.\n\n"
+          "Firearms +3. Real fights also have Call Out (make them back down) and Parley (let them leave).",
+          "options": [{"text": "Drive home.", "effects": [["skill", "hero", "firearms", 3], ["trust", "dunmore", 1]], "next": "end"}]}}}
+
+# Week 6: Teo's shielding bag teaches sealing and the garage.
+D["teo_bag"] = {"start": "a", "nodes": {
+    "a": {"speaker": "Teo Lisk", "text":
+          "Teo is on his ladder again. He climbs down holding a silver pouch. \"Shielding bag. I sealed spares for the radio club and had one left. "
+          "Anything sealed in here should ride out a pulse that kills everything plugged in. Want it?\"",
+          "options": [
+              {"text": "\"Yes. Show me how.\"", "family": "talk", "effects": [["flag", "seal_bag"], ["trust", "lisk", 1], ["flag", "teo_bag_given"]], "next": "how"},
+              {"text": "\"Not yet.\"", "family": "talk", "next": "end"}]},
+    "how": {"speaker": "Teo Lisk", "text":
+            "\"Small electronics only. Fold the top twice, tape it, test it with your phone: no signal, good seal.\"\n\n"
+            "[How it works] In your garage, tap a device under Seal to put it in the bag. Sealed gear almost always survives the flash; unsealed electronics usually do not. "
+            "Vehicles load by weight, and hardening steps lower the chance the engine dies.",
+            "options": [{"text": "Go to your garage.", "effects": [["garage"]], "next": "end"}]}}}
+
+# Week 8: Inez's radio teaches the Signal Board.
+D["inez_radio"] = {"start": "a", "nodes": {
+    "a": {"speaker": "Inez Varga", "text":
+          "Inez has her handheld radio on the porch rail and a notebook full of call signs. \"The hams hear things before the news does. Want to listen in for an hour?\"",
+          "options": [
+              {"text": "\"Show me.\"", "family": "talk", "effects": [["checks", 3], ["trust", "varga", 1], ["flag", "inez_radio"]], "next": "how"},
+              {"text": "\"Another time.\"", "family": "talk", "next": "end"}]},
+    "how": {"speaker": "Inez Varga", "text":
+            "\"Half of it is noise. The trick is which stories hold up when you check them.\"\n\n"
+            "[How it works] The Signal Board lists the news about seven possible disasters. Each look tells you if a story holds up. "
+            "Stories that hold up raise the odds for that disaster. You get 3 extra looks tonight.",
+            "options": [{"text": "Open the Signal Board.", "next": "end"}]}}}

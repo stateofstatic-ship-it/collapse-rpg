@@ -1,0 +1,136 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "Ruth Pellow",
+   "text": "Ruth waves you up onto the porch. She has an index-card box on her knees.\n\n\"The check-on chain. If the power goes, every house gets a knock inside a day. It only works if somebody walks it once so people believe in it. I need a list of who runs on a plug: oxygen, insulin, a CPAP. And I need this card in Marisol Quan's hand. She stopped answering the door for me.\"",
+   "options": [
+    {
+     "text": "\"Let me organize the whole list.\"",
+     "family": "talk",
+     "gate": [
+      "leadership",
+      25
+     ],
+     "effects": [
+      [
+       "trust",
+       "pellow",
+       1
+      ],
+      [
+       "flag",
+       "chain_list"
+      ]
+     ],
+     "fail": "org_fail",
+     "next": "org"
+    },
+    {
+     "text": "\"{partner.name} can tell you who's on what. Nurses know.\"",
+     "family": "talk",
+     "cond": [
+      [
+       "buyin_role",
+       "partner",
+       30
+      ]
+     ],
+     "effects": [
+      [
+       "trust",
+       "pellow",
+       1
+      ],
+      [
+       "flag",
+       "chain_list"
+      ],
+      [
+       "buyin_role",
+       "partner",
+       2
+      ]
+     ],
+     "next": "family"
+    },
+    {
+     "text": "\"I'll carry the card to Marisol.\"",
+     "family": "talk",
+     "next": "card"
+    },
+    {
+     "text": "\"Not this week, Ruth.\"",
+     "family": "talk",
+     "next": "later"
+    }
+   ]
+  },
+  "org": {
+   "speaker": "Ruth Pellow",
+   "text": "You have the list on two cards before her tea goes cold.\n\n[How it works] That option was a skill check. Checks never roll dice: if your skill meets the number, it works. If you are a little short, MAKE DO lets you push through anyway and costs Strain. A family member standing with you can Assist.",
+   "options": [
+    {
+     "text": "\"And the card for Marisol?\"",
+     "next": "card"
+    }
+   ]
+  },
+  "org_fail": {
+   "speaker": "Ruth Pellow",
+   "text": "You get halfway and lose track of who is on what. Ruth takes the cards back, kindly.\n\n[How it works] You were too far short of that skill check, so it failed. Night Class or practice raises a skill; Make Do covers small gaps at a Strain cost.",
+   "options": [
+    {
+     "text": "\"At least let me carry the card.\"",
+     "next": "card"
+    }
+   ]
+  },
+  "family": {
+   "speaker": "Ruth Pellow",
+   "text": "{partner.name} rattles off half the street from memory. Ruth writes fast.\n\n[How it works] Some options only appear when a family member trusts you enough. That is Buy-in: time together raises it.",
+   "options": [
+    {
+     "text": "\"And the card for Marisol?\"",
+     "next": "card"
+    }
+   ]
+  },
+  "card": {
+   "speaker": "Ruth Pellow",
+   "text": "She presses a card into your hand: a phone tree, three names, a time to knock. \"West side, the house with the wind chimes. Tap her door.\"\n\n[How it works] A task now sits in your Journal. The gold marker on the map shows where it goes.",
+   "options": [
+    {
+     "text": "Take the card.",
+     "effects": [
+      [
+       "flag",
+       "quan_card"
+      ],
+      [
+       "quest",
+       "quan_card",
+       "open"
+      ],
+      [
+       "log",
+       "Ruth's card: take it to Marisol Quan's door."
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  },
+  "later": {
+   "speaker": "Ruth Pellow",
+   "text": "\"The street will still be here next week. Probably.\"",
+   "options": [
+    {
+     "text": "Leave.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "ruth_chain"
+}

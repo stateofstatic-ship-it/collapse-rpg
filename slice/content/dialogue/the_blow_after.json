@@ -1,0 +1,187 @@
+{
+ "start": "rally",
+ "nodes": {
+  "rally": {
+   "speaker": "The Blow",
+   "route": [
+    {
+     "cond": [
+      [
+       "flag",
+       "rally_cards"
+      ]
+     ],
+     "next": "rally_cards"
+    }
+   ],
+   "text": "Everyone ends up in the kitchen eventually, but it takes {teen.name} two hours to get home from a friend's, and nobody knew where anyone was.\n\n(No rally cards. Paper Day makes them, and a rehearsal makes them work.)",
+   "options": [
+    {
+     "text": "Next.",
+     "next": "ruth"
+    }
+   ]
+  },
+  "rally_cards": {
+   "speaker": "The Blow",
+   "text": "The rally card is on the fridge: if the power goes and phones don't, call; if phones go, come home; if home's not safe, the Baseline Branch library. {teen.name} is through the door in twenty minutes. It works because it's written down.\n\nThe rally plan is rehearsed.",
+   "options": [
+    {
+     "text": "Next.",
+     "effects": [
+      [
+       "flag",
+       "rally_rehearsed"
+      ],
+      [
+       "buyin",
+       3
+      ]
+     ],
+     "next": "ruth"
+    }
+   ]
+  },
+  "ruth": {
+   "speaker": "Ruth Pellow's porch",
+   "text": "Ruth's concentrator is silent. Through the window you can see her switching to a bottle by flashlight.",
+   "options": [
+    {
+     "text": "Knock, like you promised.",
+     "cond": [
+      [
+       "tally",
+       "ruth_knock"
+      ]
+     ],
+     "family": "talk",
+     "effects": [
+      [
+       "keep_tally",
+       "ruth_knock"
+      ],
+      [
+       "trust",
+       "pellow",
+       1
+      ],
+      [
+       "flag",
+       "street_chain"
+      ],
+      [
+       "log",
+       "Ruth starts the check-on chain by lantern. The street chain is formed."
+      ]
+     ],
+     "next": "chain"
+    },
+    {
+     "text": "Knock anyway.",
+     "cond": [
+      [
+       "not_tally",
+       "ruth_knock"
+      ]
+     ],
+     "family": "talk",
+     "effects": [
+      [
+       "trust",
+       "pellow",
+       1
+      ],
+      [
+       "flag",
+       "street_chain"
+      ]
+     ],
+     "next": "chain"
+    },
+    {
+     "text": "She has bottles. Stay in.",
+     "family": "sneak",
+     "effects": [
+      [
+       "break_tally",
+       "ruth_knock"
+      ]
+     ],
+     "next": "arlo"
+    }
+   ]
+  },
+  "chain": {
+   "speaker": "Ruth Pellow",
+   "text": "\"Knew you would.\" She has a clipboard already. By nine o'clock, every house on the court has been knocked on twice and the Achterbergs' newborn has a warm room at the Quans'. Ruth runs it like a dispatch board.",
+   "options": [
+    {
+     "text": "Next.",
+     "next": "arlo"
+    }
+   ]
+  },
+  "arlo": {
+   "speaker": "Arlo Dunmore's garage",
+   "text": "There's an engine running in Arlo's garage. The door is down. You can smell it from the sidewalk.",
+   "options": [
+    {
+     "text": "Bang on the door and get him to open it. Generators kill people in shut garages.",
+     "family": "know",
+     "effects": [
+      [
+       "trust",
+       "dunmore",
+       1
+      ],
+      [
+       "mercy",
+       2
+      ],
+      [
+       "log",
+       "You got Arlo's garage door open before the CO got him."
+      ]
+     ],
+     "next": "arlo_ok"
+    },
+    {
+     "text": "Not your business.",
+     "family": "sneak",
+     "next": "arlo_bad"
+    }
+   ]
+  },
+  "arlo_ok": {
+   "speaker": "Arlo Dunmore",
+   "text": "He comes out gray-faced and dizzy. \"I didn't know,\" he keeps saying. He'll come knocking to borrow fuel next week, and you'll both know why you'd say yes.",
+   "options": [
+    {
+     "text": "Morning comes.",
+     "next": "shortfall"
+    }
+   ]
+  },
+  "arlo_bad": {
+   "speaker": "Arlo Dunmore",
+   "text": "The ambulance comes at two in the morning, lights and no siren. He lives. He doesn't know you smelled it.",
+   "options": [
+    {
+     "text": "Morning comes.",
+     "next": "shortfall"
+    }
+   ]
+  },
+  "shortfall": {
+   "speaker": "Sunday, October 10",
+   "text": "The power comes back at ten. The fridge card has a new line on it, in {partner.name}'s handwriting: what would we have done on day three?\n\nThe Blow is the Signal Board's first threat. It has passed.",
+   "options": [
+    {
+     "text": "Back to the street.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "the_blow_after"
+}

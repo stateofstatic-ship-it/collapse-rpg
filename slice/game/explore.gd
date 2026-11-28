@@ -16,6 +16,7 @@ var variant: Dictionary
 var ground: TileMapLayer
 var sorted: Node2D
 var overlay: Node2D
+var marks: Node2D           # markers over heads, drawn above people and buildings
 var camera: Camera2D
 var night_mod: CanvasModulate
 var sight_light: PointLight2D
@@ -37,13 +38,14 @@ var tiles: Dictionary = {}       # cell -> atlas coords, kept so the map can be 
 var buildings: Array = []        # [{node, cell}] cell is the footprint's front anchor
 var statics: Array = []          # [{node, cell}] trees, lamps, cars, crates
 var busy := false
+var steps_walked := 0
 var anim_t := 0.0
 
 
-func setup(state: GameState, map_id: String, variant_id: String) -> void:
+func setup(state: GameState, map_id: String, variant_id: String, override: Dictionary = {}) -> void:
 	s = state
 	map = Rules.db("maps/" + map_id)
-	variant = map["variants"][variant_id]
+	variant = override if not override.is_empty() else map["variants"][variant_id]
 	size = Vector2i(int(map["size"][0]), int(map["size"][1]))
 	ground = TileMapLayer.new()
 	ground.tile_set = Gfx.make_tileset()
@@ -56,6 +58,10 @@ func setup(state: GameState, map_id: String, variant_id: String) -> void:
 	sorted.y_sort_enabled = true
 	sorted.z_index = 2
 	add_child(sorted)
+	marks = Node2D.new()
+	marks.z_index = 3
+	marks.draw.connect(_draw_marks)
+	add_child(marks)
 	night_mod = CanvasModulate.new()
 	add_child(night_mod)
 	camera = Camera2D.new()
@@ -111,19 +117,39 @@ func apply_light() -> void:
 	var night: bool = bool(variant.get("night", false)) and s.watch >= 2 or (s.phase == "act1" and s.watch >= 2)
 	if not bool(variant.get("night", false)):
 		night = false
+	var forced: bool = bool(variant.get("force_night", false))
+	if forced:
+		night = true
 	night_mod.color = Color(0.05, 0.055, 0.09) if night else Color(1, 1, 1)
 	sight_light.enabled = night
 	var sight := Act1.sight(s, lit and night) if night else 99
+	if forced:
+		sight = 6 if lit else (3 if "light_discipline" in s.perks else 2)
 	sight_light.texture_scale = maxf(0.6, sight * 0.42)
 	for t in targets:
 		var vis: bool = not night or Combat.dist(t["cell"], hero_cell) <= sight + 1
 		if t["node"] != null:
 			t["node"].visible = vis
-	overlay.queue_redraw()
+	_redraw()
 
 
 func sight_now() -> int:
-	return Act1.sight(s, lit) if night_mod.color.r < 0.5 else 99
+	if night_mod.color.r >= 0.5:
+		return 99
+	if bool(variant.get("force_night", false)):
+		return 6 if lit else 2
+	return Act1.sight(s, lit)
+
+
+## Remove one target (a found person, a finished task) and free its cell.
+func remove_target(id: String) -> void:
+	for t in targets.duplicate():
+		if String(t["data"].get("id", "")) == id:
+			if t["node"] != null:
+				astar.set_point_solid(t["cell"], false)
+				t["node"].queue_free()
+			targets.erase(t)
+	_redraw()
 
 
 func _prop(region: Rect2, offset: Vector2, pos: Vector2) -> Sprite2D:
@@ -240,7 +266,7 @@ func turn_view(dir: int) -> void:
 	hero.position = cell_pos(hero_cell)
 	follow = true
 	camera.position = hero.position
-	overlay.queue_redraw()
+	_redraw()
 
 
 func zoom_view(f: float) -> void:
@@ -276,7 +302,7 @@ func tap_cell(c: Vector2i) -> void:
 			pending_target = t
 			preview_path = []
 			hint.emit("%s. Tap again to %s." % [nm, "go there" if t["kind"] == "exit" else ("talk" if t["kind"] == "npc" else "look")])
-		overlay.queue_redraw()
+		_redraw()
 		return
 	pending_target = {}
 	if astar.is_point_solid(c):
@@ -293,7 +319,7 @@ func tap_cell(c: Vector2i) -> void:
 		preview_path = p
 		var noise := "walk, noise 3 tiles"
 		hint.emit("%d steps (%s). Tap again to go." % [p.size() - 1, noise])
-	overlay.queue_redraw()
+	_redraw()
 
 
 func _go_to_target(t: Dictionary) -> void:
@@ -349,6 +375,7 @@ func _face(c: Vector2i) -> void:
 
 func _step_done(c: Vector2i) -> void:
 	hero_cell = c
+	steps_walked += 1
 	apply_light()
 	for t in targets:
 		if t["kind"] == "exit" and t["cell"] == c:
@@ -373,6 +400,9 @@ func _process(delta: float) -> void:
 			pts.append(cell_pos(preview_cell))
 		if not pending_target.is_empty():
 			pts.append(cell_pos(pending_target["cell"]) + Vector2(0, -40))
+		for tg in targets:
+			if tg["data"].get("task", false) and (tg["node"] == null or tg["node"].visible):
+				pts.append(cell_pos(tg["cell"]) + Vector2(0, -40))
 		var sprites: Array = []
 		for b in buildings:
 			sprites.append(b["node"])
@@ -454,8 +484,25 @@ func _draw_overlay() -> void:
 	for t in targets:
 		if t["kind"] == "exit":
 			_diamond(t["cell"], Color(0.6, 1.0, 0.6, 0.7))
-		elif (t["node"] == null or t["node"].visible) and not visited.has(t["data"].get("id", "")) and (t["data"].has("dialogue") or t["data"].has("event")):
-			overlay.draw_circle(cell_pos(t["cell"]) + Vector2(0, -170 if t["kind"] == "npc" else -40), 9, Color(1, 0.8, 0.2, 0.95))
+
+
+func _redraw() -> void:
+	overlay.queue_redraw()
+	if marks != null:
+		marks.queue_redraw()
+
+
+func _draw_marks() -> void:
+	for t in targets:
+		if t["kind"] == "exit" or not (t["node"] == null or t["node"].visible):
+			continue
+		if t["data"].get("task", false):
+			var tp := cell_pos(t["cell"]) + Vector2(0, -160 if t["kind"] == "npc" else -60)
+			marks.draw_circle(tp, 18, Color(0.9, 0.35, 0.1, 0.95))
+			marks.draw_rect(Rect2(tp + Vector2(-3, -12), Vector2(6, 14)), Color(1, 1, 1))
+			marks.draw_circle(tp + Vector2(0, 9), 3, Color(1, 1, 1))
+		elif not visited.has(t["data"].get("id", "")) and (t["data"].has("dialogue") or t["data"].has("event")):
+			marks.draw_circle(cell_pos(t["cell"]) + Vector2(0, -150 if t["kind"] == "npc" else -40), 9, Color(1, 0.8, 0.2, 0.95))
 
 
 func _diamond(c: Vector2i, col: Color) -> void:

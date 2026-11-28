@@ -61,7 +61,8 @@ func _init(state: GameState, encounter_id: String) -> void:
 			"cell": Vector2i(int(e["cell"][0]), int(e["cell"][1])), "hp": int(e["hp"]), "hp_max": int(e["hp"]),
 			"ap": 0, "ap_max": int(e["ap"]), "fire": int(e["skill"]), "melee": int(e["skill"]), "weapon": e["weapon"],
 			"sinew": 4, "reflex": 4, "init": int(e.get("init", 10)), "state": "ok", "bleed": 3, "leader": bool(e.get("leader", false)),
-			"strain": int(e.get("strain", 30)), "discipline": int(e.get("discipline", 4)), "grain": e.get("grain", "bolts")})
+			"strain": int(e.get("strain", 30)), "discipline": int(e.get("discipline", 4)), "grain": e.get("grain", "bolts"),
+			"dummy": bool(e.get("dummy", false))})
 		k += 1
 	for u in units:
 		astar.set_point_solid(u["cell"])
@@ -83,7 +84,13 @@ func _look(role: String) -> String:
 	return {"partner": "char_medic", "teen": "char_civilian", "elder": "char_elder"}.get(role, "char_survivor")
 
 
+func is_practice() -> bool:
+	return bool(enc.get("practice", false))
+
+
 func _party_weapon(role: String) -> String:
+	if role == "hero" and enc.has("loan_weapon"):
+		return String(enc["loan_weapon"])
 	if role != "hero":
 		return "tool" if role == "elder" else "fists"
 	if Devices.working_count(s, "rifle") > 0 and s.led("rounds") > 0:
@@ -205,7 +212,7 @@ func attack(target_id: String, aimed: bool) -> bool:
 		return false
 	u["ap"] = int(u["ap"]) - _attack_cost(u, aimed)
 	var ranged := int(WEAPONS[u["weapon"]]["range"]) > 1
-	if ranged and u["team"] == "party":
+	if ranged and u["team"] == "party" and not is_practice():
 		s.add_led("rounds", -1)
 		s.profile = mini(100, s.profile + 2 if not s.flag("shot_profiled") else s.profile)
 		s.set_flag("shot_profiled")
@@ -237,7 +244,9 @@ func _down(t: Dictionary) -> void:
 	astar.set_point_solid(t["cell"], false)
 	events.append({"type": "down", "unit": t["id"]})
 	_say("%s is Down." % t["name"])
-	if t["team"] == "foe":
+	if is_practice():
+		_say("%s falls over." % t["name"])
+	elif t["team"] == "foe":
 		for f in units:
 			if f["team"] == "foe" and f["state"] == "ok":
 				f["strain"] = int(f["strain"]) + (15 if t["leader"] else 5)
@@ -322,7 +331,7 @@ func _morale() -> void:
 			_say("%s %s." % [f["name"], "drops the weapon and kneels" if f["state"] == "surrendered" else "breaks and runs"])
 	if out_n >= foes:
 		outcome = "win"
-	elif out_n * 2 >= foes and not parley_offered:
+	elif out_n * 2 >= foes and not parley_offered and not is_practice():
 		parley_offered = true
 		events.append({"type": "parley"})
 		_say("Their leader calls for Parley: let them go, and it ends here.")
@@ -376,6 +385,9 @@ func _begin(_skip_dead: bool) -> void:
 
 
 func _ai(u: Dictionary) -> void:
+	if u.get("dummy", false):
+		u["ap"] = 0
+		return
 	var targets: Array = []
 	for t in units:
 		if t["team"] == "party" and t["state"] == "ok":
@@ -418,6 +430,8 @@ func _say(t: String) -> void:
 # ------------------------------------------------------------------ aftermath
 func downed_foes() -> Array:
 	var out: Array = []
+	if is_practice():
+		return out
 	for f in units:
 		if f["team"] == "foe" and f["state"] == "down":
 			out.append(f)

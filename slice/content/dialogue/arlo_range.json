@@ -1,0 +1,38 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "Arlo Dunmore",
+   "text": "Arlo is loading a hard case into his trunk. \"Bought a rifle when they started talking about the wind season. Never fired it. The range out on 47 rents lanes. Come with? I'll cover the fee.\"",
+   "options": [
+    {
+     "text": "\"Let's go.\"",
+     "family": "fight",
+     "effects": [
+      [
+       "battle",
+       "range"
+      ]
+     ],
+     "next": "end"
+    },
+    {
+     "text": "\"Not my thing, Arlo.\"",
+     "family": "talk",
+     "next": "no"
+    }
+   ]
+  },
+  "no": {
+   "speaker": "Arlo Dunmore",
+   "text": "\"Suit yourself.\" He'll ask again.",
+   "options": [
+    {
+     "text": "Leave.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "arlo_range"
+}

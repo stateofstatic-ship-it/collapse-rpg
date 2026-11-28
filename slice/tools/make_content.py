@@ -61,6 +61,19 @@ def lint_dialogue(name, d):
 
 # ------------------------------------------------------------------ fights
 ENCOUNTERS = {
+    "range": {
+        "name": "The range on 47", "size": [12, 10], "night": False, "practice": True, "loan_weapon": "rifle",
+        "kill_kind": "practice", "tiles": "concrete",
+        "cover": [[6, 4, "half"], [7, 4, "half"], [3, 3, "full"], [4, 3, "full"]],
+        "props": {"crate": [[6, 4], [7, 4], [3, 3], [4, 3]]},
+        "party_cells": [[5, 8]], "allies": [],
+        "enemies": [
+            {"name": "Paper target, close", "look": "char_civilian", "cell": [5, 5], "hp": 20, "ap": 1, "skill": 0, "weapon": "fists", "dummy": True, "grain": "sees_red", "init": 1},
+            {"name": "Target behind sandbags", "look": "char_civilian", "cell": [7, 3], "hp": 20, "ap": 1, "skill": 0, "weapon": "fists", "dummy": True, "grain": "sees_red", "init": 1},
+            {"name": "Target behind the wall", "look": "char_civilian", "cell": [3, 2], "hp": 20, "ap": 1, "skill": 0, "weapon": "fists", "dummy": True, "grain": "sees_red", "init": 1}],
+        "win": [["flag", "range_done"], ["log", "Range day with Arlo: all three targets down."]],
+        "parley": [], "lose": [],
+        "after": "arlo_range_after"},
     "pump_four": {
         "name": "Pump Four", "size": [14, 12], "night": False, "kill_kind": "self_defense",
         "tiles": "concrete",

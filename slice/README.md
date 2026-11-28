@@ -25,6 +25,16 @@ world render scale and a 30 fps cap. Art is the device-test gray box, not target
 
 - Family setup: names, roll, gender, pronouns, heritage preset, the kids' word for
   each adult; hero attributes, two specialties, job and traits.
+- Act 0 street: each week starts on your street, not in a menu. Walk to places to
+  do things: your car (shopping runs), garage (projects, Go Kit), mailbox (the
+  news board), bus stop (classes, work, trips out), front door (family, the fridge
+  card, end the week, or every activity as one list). An orange "!" marks this
+  week's task, and each one teaches a system: week 2 Ruth's phone chain (skill
+  checks) and Quan's card (Medicine), week 3 Arlo's practice range (the fight
+  screen, cover, aimed shots), week 5 finding your child and the dog in the dark
+  after the storm (sight radius), week 6 Teo's shielding bag (sealing gear in the
+  garage), week 7 the blackout drill (rally cards), week 8 Inez's radio (the news
+  board). Porch visits build trust with each household.
 - Act 0 planner: weekly blocks, money and a card limit, lead-time orders, the
   fridge card (Bedrock 7), the Signal Board with checks and a posterior, four set
   scenes (cookout walk, Pump Four, the Blow, the Eve).
@@ -48,4 +58,5 @@ godot --headless --path . -s tests/smoke.gd          # core rules
 godot --headless --path . -s tests/bot.gd -- --seeds=4   # 4 personas x seeds, pacing model
 python3 tools/make_content.py                         # rebuild content JSON and lint dialogue
 ```
-Screenshots: `godot --path . -- --shot=<family|planner|court|tvhwy|worldmap|battle|garage|summary>:<out.png>`.
+Screenshots: `godot --path . -- --shot=<family|planner|court|tvhwy|worldmap|battle|garage|summary|hub|hub3|hub7|blow|drill|range|board>:<out.png>`.
+Weekly task check: `HUB_TEST=1 godot --path . -- --bot --shot=hub:/tmp/h.png` prints `HUBTEST {...}` with every task true.

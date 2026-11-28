@@ -3,7 +3,7 @@ extends Node
 ## bar, saves and play-time telemetry. Rules live in core/; this file only
 ## shows state and sends commands (tech.md presentation layer).
 
-const VERSION := "slice-4"
+const VERSION := "slice-5"
 const SAVE_PATH := "user://slice_save.json"
 const RENDER_SCALE := 0.67
 
@@ -79,9 +79,11 @@ func _ready() -> void:
 	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	ui_root.add_child(overlay)
 	toast_label = Label.new()
-	toast_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	toast_label.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	toast_label.position.y = UI.dp(70)
+	toast_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	toast_label.offset_left = UI.dp(16)
+	toast_label.offset_right = -UI.dp(100)   # clear of the camera buttons on the right
+	toast_label.offset_top = UI.dp(70)
+	toast_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	toast_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	toast_label.add_theme_font_size_override("font_size", UI.dp(18))
 	toast_label.add_theme_color_override("font_color", Color(1, 0.97, 0.88))
@@ -111,7 +113,7 @@ func _shot_later(spec: String) -> void:
 		UI.clear(overlay)
 		overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		dlg = null
-	await get_tree().create_timer(2.5).timeout
+	await get_tree().create_timer(float(OS.get_environment("SHOT_WAIT")) if OS.has_environment("SHOT_WAIT") else 2.5).timeout
 	if OS.has_environment("TURN") and world != null and world.has_method("turn_view"):
 		var bad := 0
 		for k in int(OS.get_environment("TURN")):
@@ -127,6 +129,8 @@ func _shot_later(spec: String) -> void:
 						bad += 1
 		print("TURNTEST rot=", world.rot, " tap_mismatches=", bad)
 		await get_tree().create_timer(1.0).timeout
+	if OS.has_environment("HUB_TEST"):
+		await _hub_test()
 	if OS.has_environment("GESTURE_TEST") and world is Explore:
 		await _gesture_test()
 	if OS.has_environment("DRAG_TEST"):
@@ -425,7 +429,10 @@ func start_battle(enc_id: String, on_done: Callable) -> void:
 	battle_bar.visible = true
 	clear_screen()
 	_refresh_battle_bar()
-	toast("Fight: %s. Tap a tile to see the move, tap again to go. Tap a foe for odds." % c.enc["name"], 5.0)
+	if c.is_practice():
+		toast("Practice lane. Tap a target to see your odds, then shoot. Cover cuts your odds: try an aimed shot, or walk to a side the cover does not block.", 8.0)
+	else:
+		toast("Fight: %s. Tap a tile to see the move, tap again to go. Tap a foe for odds." % c.enc["name"], 5.0)
 	if auto_choose:
 		_bot_battle.call_deferred()
 
@@ -441,14 +448,19 @@ func _bot_battle() -> void:
 		var a := c.active()
 		var best := ""
 		var bh := 0
+		var aim := false
 		for u in c.units:
-			if u["team"] == "foe" and u["state"] == "ok" and c.can_attack(u, false) and c.hit_chance(a, u, false) > bh:
-				bh = c.hit_chance(a, u, false)
-				best = u["id"]
-		if best != "":
+			if u["team"] != "foe" or u["state"] != "ok":
+				continue
+			for aimed in [false, true]:
+				if c.can_attack(u, aimed) and c.hit_chance(a, u, aimed) > bh:
+					bh = c.hit_chance(a, u, aimed)
+					best = u["id"]
+					aim = aimed
+		if best != "" and bh >= 25:
 			bview.selected_target = best
-			bview.do_attack(false)
-		elif a["role"] == "hero" and int(a["ap"]) >= 2 and int(s.flags.get("callouts_this_fight", 0)) == 0:
+			bview.do_attack(aim)
+		elif a["role"] == "hero" and int(a["ap"]) >= 2 and int(s.flags.get("callouts_this_fight", 0)) == 0 and not c.is_practice():
 			bview.do_call_out()
 		else:
 			var moved := false
@@ -469,7 +481,10 @@ func _bot_battle() -> void:
 					c.move(bc)
 					bview._consume_events()
 					moved = true
-			if not moved:
+			if not moved and best != "":
+				bview.selected_target = best
+				bview.do_attack(aim)
+			elif not moved:
 				bview.do_end_turn()
 
 
@@ -484,7 +499,7 @@ func _refresh_battle_bar() -> void:
 	var who := "%s · AP %d/%d · Health %d/%d" % [a["name"], a["ap"], a["ap_max"], a["hp"], a["hp_max"]] if c.is_player_turn() else "Their turn..."
 	if a["team"] == "party" and a["role"] != "":
 		who += " · Strain %d" % int(s.members[a["role"]]["strain"])
-	who += " · %s · rounds %d · Round %d" % [Combat.WEAPONS[a["weapon"]]["name"] if a["team"] == "party" else "", s.led("rounds"), c.round_no]
+	who += " · %s · %s · Round %d" % [Combat.WEAPONS[a["weapon"]]["name"] if a["team"] == "party" else "", "range ammo" if c.is_practice() else "rounds %d" % s.led("rounds"), c.round_no]
 	UI.label(who, top, 16)
 	var log_l := UI.label("\n".join(bview.log_lines.slice(-3)), v, 14, Color(0.3, 0.25, 0.2))
 	log_l.custom_minimum_size.y = UI.dp(40)
@@ -502,7 +517,7 @@ func _refresh_battle_bar() -> void:
 				b2.disabled = not ti["can_aimed"]
 		else:
 			UI.label("Tap a foe to see the odds.", row, 15)
-		if a["role"] == "hero":
+		if a["role"] == "hero" and not c.is_practice():
 			var dc := c.call_out_dc()
 			var b3 := UI.button("Call Out (2 AP)\n%s" % Rules.gate_label(s, "negotiation", dc), func() -> void: bview.do_call_out(), row, 160)
 			b3.disabled = int(a["ap"]) < 2 or s.strain_band("hero") >= 2
@@ -670,3 +685,75 @@ func _gesture_test() -> void:
 	_touch(0, c + Vector2(0, 60), false)
 	await get_tree().process_frame
 	print("GESTURE tap preview=", ex.preview_cell, " target=", not ex.pending_target.is_empty())
+
+
+## Agent check (HUB_TEST=1 --bot with --shot=hub): play every weekly task headlessly.
+func _wait_flag(f: String, secs: float) -> bool:
+	var t := 0.0
+	while not s.flag(f) and t < secs:
+		await get_tree().create_timer(0.2).timeout
+		t += 0.2
+		if bview == null or bview.c.outcome != "":
+			for b in get_tree().root.find_children("*", "Button", true, false):
+				if b.is_visible_in_tree() and String(b.text) == "Continue":
+					b.pressed.emit()
+					break
+	return s.flag(f)
+
+
+func _task_target(id: String) -> Dictionary:
+	for t in screens.hub.ex.targets:
+		if String(t["data"].get("id", "")) == id:
+			return t["data"]
+	return {}
+
+
+func _hub_test() -> void:
+	var hub: Hub = screens.hub
+	UI.clear(overlay)
+	var out := {}
+	for step in [[2, "ruth_t", "ruth_chain_done"], [2, "door_quan", "quan_done"], [3, "arlo_t", "range_done"], [6, "teo_t", "teo_bag_given"], [8, "inez_t", "inez_radio"]]:
+		s.week = step[0]
+		s.set_flag("hub_intro_%d" % s.week)
+		hub.show()
+		await get_tree().process_frame
+		var t := _task_target(step[1])
+		if t.is_empty():
+			out[step[1]] = "target missing"
+			continue
+		hub._interact(t)
+		if OS.get_environment("HUB_DEBUG") != "":
+			for i in 10:
+				await get_tree().create_timer(1.0).timeout
+				print("DBG ", step[1], " bview=", bview != null, " dlg=", dlg != null, " out=", bview.c.outcome if bview != null else "-", " btns=", get_tree().root.find_children("*", "Button", true, false).filter(func(b): return b.is_visible_in_tree()).map(func(b): return b.text))
+		out[step[1]] = await _wait_flag(step[2], 30.0)
+		await get_tree().create_timer(1.0).timeout
+		UI.clear(overlay)
+		overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Drill: send everyone home, then reach the rally point.
+	s.week = 7
+	hub.start_drill()
+	await get_tree().process_frame
+	for r in Hub.DRILL_SPOTS:
+		hub._drill_interact({"event": "drill:" + r})
+	hub._drill_interact({"event": "drill:home"})
+	out["drill"] = s.flag("drill_done")
+	UI.clear(overlay)
+	# Dark search after the Blow.
+	s.week = 5
+	hub.start_blow_search()
+	await get_tree().process_frame
+	hub._blow_interact({"event": "blow:child"})
+	hub._blow_interact({"event": "blow:dog"})
+	hub._blow_interact({"event": "blow:home"})
+	await get_tree().create_timer(0.5).timeout
+	out["blow_popup"] = overlay.get_child_count() > 0
+	# Porch visit.
+	var tr0 := int(s.neighbors["achterberg"])
+	hub._porch("achterberg")
+	await get_tree().process_frame
+	for b in overlay.find_children("*", "Button", true, false):
+		if String(b.text).begins_with("Bring a pie"):
+			b.pressed.emit()
+	out["porch"] = "%d -> %d" % [tr0, int(s.neighbors["achterberg"])]
+	print("HUBTEST ", out, " firearms_bonus=", s.members["hero"]["bonus"].get("firearms", 0), " checks_bonus=", s.checks_bonus, " seal_bag=", s.flag("seal_bag"), " quests=", s.quests)

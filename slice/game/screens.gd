@@ -23,11 +23,14 @@ const TRAITS := {
 var m: Node
 var resume_point := ""
 var selected_activity := ""
+var planner_filter: Array = []   # [] or ["*"] shows every category from the hub door
+var hub: Hub
 var family_sel: Dictionary = {}
 
 
 func _init(main: Node) -> void:
 	m = main
+	hub = Hub.new(self)
 
 
 var s: GameState:
@@ -415,7 +418,7 @@ func show_week() -> void:
 		s.set_flag("scene_" + scene)
 		play_scene(scene)
 		return
-	show_planner()
+	hub.show()
 
 
 func play_scene(scene: String) -> void:
@@ -424,10 +427,10 @@ func play_scene(scene: String) -> void:
 			m.run_dialogue("cookout_intro", func() -> void: start_cookout())
 		"pump_four":
 			m.clear_world()
-			m.run_dialogue("pump_four", show_planner)
+			m.run_dialogue("pump_four", hub.show)
 		"the_blow":
 			m.clear_world()
-			m.run_dialogue("the_blow", show_planner)
+			m.run_dialogue("the_blow", hub.start_blow_search)
 
 
 func start_cookout() -> void:
@@ -457,7 +460,7 @@ func _cookout_check(ex: Explore, done: Dictionary) -> void:
 	m.run_dialogue(fin["event"], func() -> void:
 		m.run_dialogue("cookout_end", func() -> void:
 			m.clear_world()
-			show_planner()))
+			hub.show()))
 
 
 func show_planner() -> void:
@@ -465,11 +468,15 @@ func show_planner() -> void:
 	m.clear_screen()
 	m.set_segment("act0")
 	m.refresh_status()
-	var body := UI.page(m.screen, "Week %d · %s" % [s.week, week_dates(s.week)])
+	var filtered := not planner_filter.is_empty() and planner_filter != ["*"]
+	var body := UI.page(m.screen, "Week %d · %s" % [s.week, week_dates(s.week)] if not filtered else " · ".join(planner_filter.map(func(x: String) -> String: return {"Supply": "Your car: shopping", "Site": "Your garage: projects", "Family": "At home", "Neighbors": "Neighbors", "Train": "Out in town"}.get(x, x))))
+	var back := UI.button("Back to the street", func() -> void: hub.show(), body, 260)
+	back.modulate = Color(1.0, 0.9, 0.7)
 	var heads: Array = Act0.threads()["headlines"].get(str(s.week), [])
-	if not heads.is_empty():
+	if not heads.is_empty() and not filtered:
 		UI.rich("[b]Headlines:[/b] " + " · ".join(heads), body, 15)
 	var fridge := UI.panel(body)
+	fridge.visible = not filtered
 	var fv := UI.vbox(fridge, 4)
 	UI.rich("[b]The fridge card[/b] · Bedrock %d of 7 · next gap: %s" % [Act0.bedrock_count(s), s.fill(Act0.fridge_gap(s))], fv, 16)
 	var br := Act0.bedrock(s)
@@ -480,11 +487,12 @@ func show_planner() -> void:
 	if not s.orders.is_empty():
 		UI.rich("[b]On order:[/b] " + ", ".join(s.orders.map(func(o: Dictionary) -> String: return "%s (week %d)" % [Act0.activity(o["activity"])["name"], int(o["arrive"])])), fv, 14)
 	var tools := UI.hbox(body)
-	UI.button("Signal Board: what's coming?\n(%d looks left)" % Act0.checks_left(s), func() -> void: show_board(), tools, 240)
-	if s.has_vehicle():
+	UI.button("Signal Board: what's coming?\n(%d looks left)" % Act0.checks_left(s), func() -> void: show_board(show_planner), tools, 240).visible = not filtered
+	if (s.has_vehicle() or s.flag("seal_bag")) and (not filtered or "Site" in planner_filter):
 		UI.button("Garage", func() -> void: show_garage(show_planner), tools, 120)
 	var end_txt := "End week %d" % s.week if s.week < 8 else "To Halloween"
 	var end_b := UI.button(end_txt + (" (%d blocks unused)" % Act0.blocks_left(s) if Act0.blocks_left(s) > 0 else ""), func() -> void: end_week(), tools, 220)
+	end_b.visible = not filtered
 	if Act0.blocks_left(s) == 0:
 		end_b.modulate = Color(1.0, 0.85, 0.55)
 		UI.rich("[b]This week's time is used up.[/b] Everything below is greyed out until next week. Check the Signal Board if you have looks left, then tap [b]%s[/b]." % end_txt, body, 15)
@@ -496,6 +504,8 @@ func show_planner() -> void:
 	_activity_detail(dv)
 	var cats := {}
 	for a in Act0.activities():
+		if filtered and not a["cat"] in planner_filter:
+			continue
 		if not cats.has(a["cat"]):
 			cats[a["cat"]] = []
 		cats[a["cat"]].append(a)
@@ -575,7 +585,7 @@ func show_last_pin() -> void:
 				m.run_dialogue("breakfast", start_dayzero), b, 300), Callable(), "Not yet")
 
 
-func show_board() -> void:
+func show_board(on_close: Callable = Callable()) -> void:
 	popup("The Signal Board: what's coming?", func(b: VBoxContainer) -> void:
 		var t: Dictionary = Act0.threads()
 		var h := Act0.hunch(s)
@@ -624,8 +634,10 @@ func show_board() -> void:
 			if held + nothing > 0:
 				UI.label("Earlier weeks: %d held up, %d were nothing." % [held, nothing], v, 14, Color(0.35, 0.3, 0.25))
 	, func() -> void:
-		if s.phase == "act0":
-			show_planner())
+		if on_close.is_valid():
+			on_close.call()
+		elif s.phase == "act0":
+			hub.show())
 
 
 func show_gear(cb: Callable) -> void:
@@ -1093,10 +1105,10 @@ func show_aftermath(c: Combat, outcome: String, cb: Callable) -> void:
 	var downs := c.downed_foes()
 	var head: String = {"win": "It's over", "parley": "They're gone", "lose": "You lost this one"}.get(outcome, "After")
 	popup(head, func(b: VBoxContainer) -> void:
-		UI.rich({"win": "The fight is over. Most fights end before anyone dies; people break first.", "parley": "Parley: they leave, and nobody else gets hurt today.", "lose": "On Hearth, family are badly hurt or robbed, never killed."}.get(outcome, ""), b)
+		UI.rich("Practice is over. Nobody real was hurt." if c.is_practice() else {"win": "The fight is over. Most fights end before anyone dies; people break first.", "parley": "Parley: they leave, and nobody else gets hurt today.", "lose": "On Hearth, family are badly hurt or robbed, never killed."}.get(outcome, ""), b)
 		for f in c.units:
 			if f["team"] == "foe":
-				UI.label("%s: %s" % [f["name"], {"ok": "standing", "down": "Down, bleeding", "fled": "fled", "surrendered": "surrendered", "treated": "treated", "dead": "dead"}.get(f["state"], f["state"])], b, 15)
+				UI.label("%s: %s" % [f["name"], {"ok": "standing", "down": "knocked over" if c.is_practice() else "Down, bleeding", "fled": "fled", "surrendered": "surrendered", "treated": "treated", "dead": "dead"}.get(f["state"], f["state"])], b, 15)
 		if not downs.is_empty():
 			UI.rich("Someone is Down. Treat them with a kit (%d left) or leave them. Leaving a Down person is scored as a killing." % s.led("kits"), b, 15)
 			for f in downs:
@@ -1230,6 +1242,35 @@ func debug_scene(name: String) -> void:
 			m.dlg = null
 			UI.clear(m.overlay)
 			show_board()
+		"hub", "hub3", "hub7":
+			quick_defaults()
+			finish_family()
+			m.dlg = null
+			UI.clear(m.overlay)
+			s.week = {"hub": 2, "hub3": 3, "hub7": 7}[name]
+			if name != "hub":
+				s.set_flag("hub_intro_%d" % s.week)
+			hub.show()
+		"blow":
+			quick_defaults()
+			finish_family()
+			m.dlg = null
+			UI.clear(m.overlay)
+			s.week = 5
+			hub.start_blow_search()
+		"drill":
+			quick_defaults()
+			finish_family()
+			m.dlg = null
+			UI.clear(m.overlay)
+			s.week = 7
+			hub.start_drill()
+		"range":
+			quick_defaults()
+			finish_family()
+			m.dlg = null
+			UI.clear(m.overlay)
+			m.start_battle("range", func() -> void: pass)
 		"summary":
 			quick_defaults()
 			finish_family()
