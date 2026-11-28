@@ -43,7 +43,7 @@ var vcam := ViewCam.new()
 var rot := 0                     # quarter turns of the view, clockwise
 var follow := true               # camera follows the hero until the player pans
 var tiles: Dictionary = {}       # cell -> atlas coords, kept so the map can be turned
-var buildings: Array = []        # [{node, cell, fw, fh, home}] cell is the footprint's front anchor
+var buildings: Array = []        # [{node, cell}] towers, or [{big, cells, nodes...}] rendered houses and cars
 var statics: Array = []          # [{node, cell}] trees, lamps, cars, crates
 var busy := false
 var steps_walked := 0
@@ -115,16 +115,21 @@ func setup(state: GameState, map_id: String, variant_id: String, override: Dicti
 		# Rendered houses (tools/render_houses.py): one image per quarter turn.
 		var hc := Vector2i(int(h["cell"][0]), int(h["cell"][1]))
 		var turn := int(h.get("turn", 0))
-		var hsp := Sprite2D.new()
-		sorted.add_child(hsp)
 		var fw := 5 if turn % 2 == 0 else 4
 		var fh := 4 if turn % 2 == 0 else 5
-		buildings.append({"node": hsp, "cell": hc, "fw": fw, "fh": fh, "home": true, "turn": turn, "look": int(h.get("look", 0))})
+		var cells: Array = []
 		for dy in range(-(fh - 1), 1):
 			for dx in range(-(fw - 1), 1):
-				var b := hc + Vector2i(dx, dy)
-				if astar.is_in_boundsv(b):
-					astar.set_point_solid(b)
+				cells.append(hc + Vector2i(dx, dy))
+		_add_big("houses/h%d_%%d" % int(h.get("look", 0)), turn, cells, Vector2(640, 512), Vector2(352, 460), Vector2(288, 460))
+	var cars: Array = map.get("cars", []).duplicate()
+	cars.append_array(variant.get("cars", []))
+	for cr in cars:
+		# Rendered vehicles (tools/render_cars.py): nose tile, then tail tile.
+		var cc: Array = []
+		for q in cr["cells"]:
+			cc.append(Vector2i(int(q[0]), int(q[1])))
+		_add_big("cars/%s_%%d" % String(cr["kind"]), int(cr["turn"]), cc, Vector2(384, 320), Vector2(200, 250), Vector2(184, 250))
 	_paint_ground()
 	_place_buildings()
 	hero_cell = Vector2i(int(variant["spawn"][0]), int(variant["spawn"][1]))
@@ -291,8 +296,65 @@ func _paint_ground() -> void:
 
 ## A building covers the 5x5 cells behind its anchor; after a turn, its sprite
 ## sits on whichever footprint cell is now nearest the viewer.
+## A rendered sprite that covers several tiles (a house, a car). It is cut into
+## 64 px columns, and each column sorts by the front edge of the footprint under
+## it, so people and props in front of any part of it draw on top.
+func _add_big(tex_fmt: String, turn: int, cells: Array, img: Vector2, anchor_even: Vector2, anchor_odd: Vector2) -> void:
+	for c in cells:
+		if astar.is_in_boundsv(c):
+			astar.set_point_solid(c)
+	buildings.append({"big": true, "fmt": tex_fmt, "turn": turn, "cells": cells, "img": img,
+		"a_even": anchor_even, "a_odd": anchor_odd, "nodes": []})
+
+
+func _layout_big(b: Dictionary) -> void:
+	for n in b["nodes"]:
+		n.queue_free()
+	b["nodes"] = []
+	var vt: int = (int(b["turn"]) + rot) % 4
+	var tex := Gfx.canvas_tex(String(b["fmt"]) % vt)
+	var img: Vector2 = b["img"]
+	var a: Vector2 = b["a_even"] if vt % 2 == 0 else b["a_odd"]
+	var pts: Array = []
+	var front := Vector2(-INF, -INF)
+	for c in b["cells"]:
+		var p := cell_pos(c)
+		pts.append(p)
+		if p.y > front.y:
+			front = p
+	var left := front.x - a.x
+	var top := front.y - a.y
+	var strips := int(ceil(img.x / 64.0))
+	for i in strips:
+		var sx := left + 64.0 * i + 32.0
+		var sort_y := -INF
+		var near := INF
+		var near_y := 0.0
+		for p in pts:
+			var dx: float = absf(sx - p.x)
+			if dx < 64.0:
+				sort_y = maxf(sort_y, p.y + 32.0 - dx * 0.5)
+			if dx < near:
+				near = dx
+				near_y = p.y
+		if sort_y == -INF:
+			sort_y = near_y
+		var sp := Sprite2D.new()
+		sp.texture = tex
+		sp.region_enabled = true
+		sp.region_filter_clip_enabled = true
+		sp.region_rect = Rect2(64.0 * i, 0, 64, img.y)
+		sp.position = Vector2(sx, sort_y - 1.0)
+		sp.offset = Vector2(0, top + img.y * 0.5 - (sort_y - 1.0))
+		sorted.add_child(sp)
+		b["nodes"].append(sp)
+
+
 func _place_buildings() -> void:
 	for b in buildings:
+		if b.get("big", false):
+			_layout_big(b)
+			continue
 		var best := Vector2i.ZERO
 		var bs := -999999
 		for dy in range(-(int(b.get("fh", 5)) - 1), 1):
@@ -302,12 +364,6 @@ func _place_buildings() -> void:
 					bs = d.x + d.y
 					best = d
 		b["node"].position = ground.map_to_local(best)
-		if b.get("home", false):
-			# Pick the render for this view; odd turns are 4 x 5 on screen and
-			# their anchor sits 64 px further left in the image.
-			var vt: int = (int(b["turn"]) + rot) % 4
-			b["node"].texture = Gfx.canvas_tex("houses/h%d_%d" % [b["look"], vt])
-			b["node"].offset = Vector2(-32 if vt % 2 == 0 else 32, -204)
 
 
 ## Turn the map a quarter turn (dir +1 clockwise, -1 counter-clockwise).
@@ -468,7 +524,10 @@ func _process(delta: float) -> void:
 				pts.append(cell_pos(tg["cell"]) + Vector2(0, -40))
 		var sprites: Array = []
 		for b in buildings:
-			sprites.append(b["node"])
+			if b.get("big", false):
+				ViewCam.fade_group(b["nodes"], pts, delta)
+			else:
+				sprites.append(b["node"])
 		for st in statics:
 			sprites.append(st["node"])
 		ViewCam.fade_occluders(sprites, pts, delta)

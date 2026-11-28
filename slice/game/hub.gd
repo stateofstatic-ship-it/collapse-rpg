@@ -49,7 +49,7 @@ func _hint_once(key: String, text: String) -> void:
 
 func variant() -> Dictionary:
 	var objs: Array = [
-		{"id": "st_car", "name": "Your car: shopping runs", "prop": "truck_x" if s.vehicles.any(func(v: Dictionary) -> bool: return v["kind"] != "family_car") else "car_x", "cell": spot("car"), "event": "station:supply"},
+		{"id": "st_car", "name": "Your car: shopping runs", "prop": "none", "cell": spot("car"), "event": "station:supply"},
 		{"id": "st_garage", "name": "Your garage: projects and the Go Kit", "prop": "none", "cell": spot("garage"), "event": "station:site"},
 		{"id": "st_door", "name": "Your front door: family, the fridge card, end the week", "prop": "none", "cell": spot("home_door"), "event": "station:door"},
 		{"id": "st_mail", "name": "Mailbox and porch radio: the Signal Board", "prop": "mailbox", "cell": spot("mail"), "event": "board"},
@@ -78,7 +78,22 @@ func variant() -> Dictionary:
 		npcs.append({"id": "partner_t", "name": "{partner.name}", "look": "char_medic", "role": "partner", "cell": spot("partner"), "event": "task:drill", "task": true})
 	if w >= 8 and not s.flag("inez_radio"):
 		npcs.append({"id": "inez_t", "name": "Inez Varga", "look": "char_survivor", "cell": spot("inez"), "dialogue": "inez_radio", "task": true, "after": "board"})
-	return {"night": false, "spawn": spot("hub_spawn"), "npcs": npcs, "objects": objs}
+	return {"night": false, "spawn": spot("hub_spawn"), "npcs": npcs, "objects": objs, "cars": [home_car()]}
+
+
+## Your car on the driveway: the prep vehicle if you bought one, else the family sedan.
+func home_car() -> Dictionary:
+	var kind := "sedan"
+	for v in s.vehicles:
+		if v["kind"] == "old_iron":
+			kind = "old_iron"
+		elif v["kind"] == "rig_90s" and kind != "old_iron":
+			kind = "rig"
+	return {"kind": kind, "cells": [spot("car"), spot("car_tail")], "turn": int(spot_v("car_turn"))}
+
+
+static func spot_v(key: String) -> Variant:
+	return Rules.db("maps/court")["spots"][key]
 
 
 func show() -> void:

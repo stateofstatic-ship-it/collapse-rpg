@@ -171,3 +171,24 @@ static func fade_occluders(sprites: Array, points: Array, delta: float) -> void:
 				break
 		var target := 0.3 if hide else 1.0
 		sp.modulate.a = move_toward(sp.modulate.a, target, delta * 4.0)
+
+
+## Fade a sprite cut into strips as one piece: if any strip covers a point
+## from in front, every strip fades.
+static func fade_group(sprites: Array, points: Array, delta: float) -> void:
+	var hide := false
+	for sp in sprites:
+		if not is_instance_valid(sp):
+			continue
+		var r: Rect2 = sp.get_rect()
+		r.position += sp.position
+		for p in points:
+			if sp.position.y > p.y + 4.0 and r.has_point(p):
+				hide = true
+				break
+		if hide:
+			break
+	var target := 0.3 if hide else 1.0
+	for sp in sprites:
+		if is_instance_valid(sp):
+			sp.modulate.a = move_toward(sp.modulate.a, target, delta * 4.0)

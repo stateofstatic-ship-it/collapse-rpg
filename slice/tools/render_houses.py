@@ -24,8 +24,8 @@ from bpy_extras.object_utils import world_to_camera_view
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "assets", "houses")
-SAMPLES = int(sys.argv[1]) if len(sys.argv) > 1 else 48
-ONLY = [int(a) for a in sys.argv[2:]]
+SAMPLES = int(sys.argv[1]) if len(sys.argv) > 1 and __name__ == "__main__" else 32
+ONLY = [int(a) for a in sys.argv[2:]] if __name__ == "__main__" else []
 os.makedirs(OUT, exist_ok=True)
 
 PX_PER_UNIT = 128 / math.sqrt(2)          # horizontal pixels per tile edge
@@ -202,7 +202,7 @@ LOOKS = [
 ]
 
 
-def new_scene():
+def new_scene(w_px=W_PX, h_px=H_PX):
     global scene
     bpy.ops.wm.read_factory_settings(use_empty=True)
     scene = bpy.context.scene
@@ -211,7 +211,7 @@ def new_scene():
     scene.cycles.samples = SAMPLES
     scene.cycles.use_denoising = True
     scene.render.film_transparent = True
-    scene.render.resolution_x, scene.render.resolution_y = W_PX, H_PX
+    scene.render.resolution_x, scene.render.resolution_y = w_px, h_px
     scene.view_settings.view_transform = "Standard"
 
     return scene
@@ -300,7 +300,7 @@ def build(look):
     box("backdoor", X0 - 0.05, X0 + 0.01, Y0 + 2.2, Y0 + 2.75, 0.09, 1.24, DOOR)
 
 
-def lights_and_camera(scene):
+def lights_and_camera(scene, w_px=W_PX):
     world = bpy.data.worlds.new("w")
     scene.world = world
     world.use_nodes = True
@@ -314,7 +314,7 @@ def lights_and_camera(scene):
     ground.is_shadow_catcher = True
     cam_data = bpy.data.cameras.new("cam")
     cam_data.type = "ORTHO"
-    cam_data.ortho_scale = W_PX / PX_PER_UNIT
+    cam_data.ortho_scale = w_px / PX_PER_UNIT
     cam = bpy.data.objects.new("cam", cam_data)
     bpy.context.collection.objects.link(cam)
     scene.camera = cam
@@ -369,5 +369,6 @@ def render_look(look):
         print("rendered", scene.render.filepath, flush=True)
 
 
-for lk in (ONLY or range(len(LOOKS))):
-    render_look(lk)
+if __name__ == "__main__":
+    for lk in (ONLY or range(len(LOOKS))):
+        render_look(lk)

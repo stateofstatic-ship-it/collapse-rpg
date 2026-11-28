@@ -134,7 +134,9 @@ def blank(w, h, ch="."):
     return [[ch] * w for _ in range(h)]
 
 
-SOLID = set("PMmfFbBgkisulcHTxvVwW")
+SOLID = set("PMmfFbBgkisulcHTxvVwWD")
+# A car's render turn from the way its nose points: +x, +y, -x, -y.
+CAR_TURN = {(1, 0): 0, (0, 1): 1, (-1, 0): 2, (0, -1): 3}
 
 
 def court_map():
@@ -261,7 +263,9 @@ def court_map():
     spots = {
         "home_door": list(home_door),
         "home_back": [home_door[0] + 1, home_door[1]],
-        "car": list(hg),
+        "car": [hg[0] + garages["home"][1][0], hg[1] + garages["home"][1][1]],
+        "car_tail": list(hg),
+        "car_turn": CAR_TURN[garages["home"][1]],
         "garage": list(hg2),
         "mail": [12, 25],
         "bus": [17, 27],
@@ -278,14 +282,14 @@ def court_map():
         "drill_child": [doors["quan"][0], doors["quan"][1] + 2],
         "drill_elder": [doors["dunmore"][0] + 1, doors["dunmore"][1] + 2],
         "doors": {k: list(v) for k, v in doors.items() if not k.startswith("spare") and k != "home"},
-        "act1_radio": list(hg),
+        "act1_radio": [hg2[0] + garages["home"][1][0], hg2[1] + garages["home"][1][1]],
         "act1_garage": list(hg2),
     }
     keep = set()
     for k, v in spots.items():
         if k == "doors":
             keep |= {tuple(c) for c in v.values()}
-        else:
+        elif isinstance(v, list):
             keep.add(tuple(v))
     cook = [(16, 9), (12, 10), (19, 11), (14, 14), (17, 13), (15, 15), (15, 12), (17, 17),
             (15, 26), (11, 9), (9, 15), (10, 8), (16, 8), (15, 29), (15, 27)]
@@ -351,16 +355,23 @@ def court_map():
     for (ax, ay) in [(5, 9), (21, 9), (6, 21), (19, 18), (24, 17), (11, 17), (20, 26), (8, 9)]:
         put(ax, ay, "M")
     # Parked cars in two neighbor driveways.
-    for key, truck in (("dunmore", True), ("achterberg", False), ("quan", False)):
-        (x, y) = garages[key][0][0]
-        dx, dy = garages[key][1]
-        ch = ("w" if truck else "v") if dx != 0 else ("W" if truck else "V")
-        put(x + dx, y + dy, ch, "d")
+    # Parked cars (tools/render_cars.py): two tiles on the driveway, nose to the street.
+    cars = []
+    for key, kind in (("dunmore", "pickup"), ("achterberg", "sedan"), ("quan", "sedan")):
+        tail = garages[key][0][0]
+        n = garages[key][1]
+        nose = (tail[0] + n[0], tail[1] + n[1])
+        if g[tail[1]][tail[0]] == "d" and g[nose[1]][nose[0]] == "d" and tail not in reserve and nose not in reserve:
+            cars.append({"kind": kind, "cells": [list(nose), list(tail)], "turn": CAR_TURN[n]})
+            g[tail[1]][tail[0]] = "D"
+            g[nose[1]][nose[0]] = "D"
     rows = ["".join(r) for r in g]
-    validate_court(rows, spots, cook)
+    validate_court(rows, spots, cook, solid_extra={tuple(spots["car"]), tuple(spots["car_tail"])})
+    rows = [r.replace("D", "d") for r in rows]
     return {"id": "court", "size": [W, H], "rows": rows, "spawn": [15, 27],
             "homes": [{"owner": o, "cell": [a[0], a[1]], "turn": TURN[f], "look": k} for o, a, f, k in homes],
             "spots": spots,
+            "cars": cars,
             "variants": {
                 "cookout": {"night": False, "spawn": [17, 17],
                             "npcs": [
@@ -384,12 +395,13 @@ def court_map():
                          "exits": [{"cell": [15, 29], "label": "Leave the court (world map)", "event": "worldmap"}]}}}
 
 
-def validate_court(rows, spots, cook):
-    """Every spot must be open ground reachable from the road."""
+def validate_court(rows, spots, cook, solid_extra=()):
+    """Every spot must be open ground reachable from the road. Spots that are
+    things (the car) only need an open neighbour."""
     W, H = len(rows[0]), len(rows)
 
     def open_(x, y):
-        return 0 <= x < W and 0 <= y < H and rows[y][x] not in SOLID and rows[y][x] != "#"
+        return 0 <= x < W and 0 <= y < H and rows[y][x] not in SOLID and rows[y][x] != "#" and (x, y) not in solid_extra
     seen = {(15, 27)}
     q = [(15, 27)]
     while q:
@@ -403,10 +415,13 @@ def validate_court(rows, spots, cook):
     for k, v in spots.items():
         if k == "doors":
             cells += [("door_" + h, tuple(c)) for h, c in v.items()]
-        else:
+        elif isinstance(v, list):
             cells.append((k, tuple(v)))
     cells += [("scene", c) for c in cook]
-    bad = [(k, c, rows[c[1]][c[0]] if 0 <= c[0] < W and 0 <= c[1] < H else "out") for k, c in cells if c not in seen]
+    things = {"car", "car_tail"}
+    cells = [(k, c) for k, c in cells if k != "car_turn"]
+    bad = [(k, c, rows[c[1]][c[0]] if 0 <= c[0] < W and 0 <= c[1] < H else "out") for k, c in cells
+           if (c not in seen if k not in things else not any((c[0] + a, c[1] + b) in seen for a, b in ((0, 1), (1, 0), (-1, 0), (0, -1))))]
     if bad:
         raise SystemExit("court layout: unreachable or blocked spots %s" % bad)
     print("court layout ok: %d spots reachable, %d open cells" % (len(cells), len(seen)))

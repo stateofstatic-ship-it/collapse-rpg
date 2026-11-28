@@ -31,6 +31,11 @@ world render scale and a 30 fps cap. Art is the device-test gray box, not target
   front door facing the street: `pip install bpy`, then
   `python3 tools/render_houses.py [samples] [look ...]` (assets/houses/, Cycles on
   the CPU, about 6 s per image at 32 samples; run `godot --headless --import` after).
+  Cars work the same way: `python3 tools/render_cars.py [samples] [kind ...]`
+  (assets/cars/: sedan, the '90s rig, the 1968 pickup, a modern pickup), parked
+  nose to the street along each driveway. Houses and cars are drawn in 64 px
+  columns, each sorted by its own front edge, so a car beside a house and a person
+  behind one both draw in the right order on every map turn.
   Yard props come from `python3 tools/make_suburb.py` (assets/suburb.png); the
   layout and every door and task spot come from `tools/make_content.py`, which
   fails the build if any spot is blocked or unreachable.
