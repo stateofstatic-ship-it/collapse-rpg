@@ -3,7 +3,7 @@ extends Node
 ## bar, saves and play-time telemetry. Rules live in core/; this file only
 ## shows state and sends commands (tech.md presentation layer).
 
-const VERSION := "slice-6"
+const VERSION := "slice-7"
 const SAVE_PATH := "user://slice_save.json"
 const RENDER_SCALE := 0.67
 

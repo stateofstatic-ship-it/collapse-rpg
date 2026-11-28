@@ -112,17 +112,14 @@ func setup(state: GameState, map_id: String, variant_id: String, override: Dicti
 						statics.append({"node": _sub_prop(k2, c), "cell": c, "kind": k2})
 						astar.set_point_solid(c)
 	for h in map.get("homes", []):
+		# Rendered houses (tools/render_houses.py): one image per quarter turn.
 		var hc := Vector2i(int(h["cell"][0]), int(h["cell"][1]))
-		var long_x: bool = String(h.get("long", "x")) == "x"
-		var look := int(h.get("look", 0))
+		var turn := int(h.get("turn", 0))
 		var hsp := Sprite2D.new()
-		hsp.texture = Gfx.canvas_tex("suburb")
-		hsp.region_enabled = true
-		hsp.region_rect = Rect2(look % 3 * 640, look / 3 * 512, 640, 512)
 		sorted.add_child(hsp)
-		var fw := 5 if long_x else 4
-		var fh := 4 if long_x else 5
-		buildings.append({"node": hsp, "cell": hc, "fw": fw, "fh": fh, "home": true, "long_x": long_x})
+		var fw := 5 if turn % 2 == 0 else 4
+		var fh := 4 if turn % 2 == 0 else 5
+		buildings.append({"node": hsp, "cell": hc, "fw": fw, "fh": fh, "home": true, "turn": turn, "look": int(h.get("look", 0))})
 		for dy in range(-(fh - 1), 1):
 			for dx in range(-(fw - 1), 1):
 				var b := hc + Vector2i(dx, dy)
@@ -306,11 +303,11 @@ func _place_buildings() -> void:
 					best = d
 		b["node"].position = ground.map_to_local(best)
 		if b.get("home", false):
-			# The house art is long along screen-x; mirror it when the long side
-			# runs the other way on screen (a 4 x 5 lot, or a quarter turn).
-			var flip: bool = (not b["long_x"]) != (rot % 2 == 1)
-			b["node"].flip_h = flip
-			b["node"].offset = Vector2(32 if flip else -32, -204)
+			# Pick the render for this view; odd turns are 4 x 5 on screen and
+			# their anchor sits 64 px further left in the image.
+			var vt: int = (int(b["turn"]) + rot) % 4
+			b["node"].texture = Gfx.canvas_tex("houses/h%d_%d" % [b["look"], vt])
+			b["node"].offset = Vector2(-32 if vt % 2 == 0 else 32, -204)
 
 
 ## Turn the map a quarter turn (dir +1 clockwise, -1 counter-clockwise).

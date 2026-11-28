@@ -158,32 +158,38 @@ def court_map():
             g[y][x] = "="
         g[y][13] = "-"
         g[y][17] = "-"
-    # owner, anchor, long axis, look (look parity: even = door near the corner,
-    # garage on the long wall; odd = door mid-wall, wide gable over the garage)
+    # owner, anchor (front corner: largest x and y), facing, look.
+    # Art (tools/render_houses.py): garage, front door and big window on the
+    # street side. Facing S, W, N, E is the render turn 0, 1, 2, 3; even turns
+    # are 5 x 4 (long along x), odd turns 4 x 5.
     homes = [
-        ("pellow", (9, 5), "x", 1), ("dunmore", (17, 4), "x", 0), ("lisk", (24, 5), "x", 2),
-        ("achterberg", (7, 14), "y", 3), ("varga", (26, 14), "x", 4),
-        ("home", (10, 23), "y", 1), ("quan", (23, 22), "x", 5),
-        ("", (10, 29), "x", 2), ("", (23, 29), "x", 3)]
+        ("pellow", (9, 5), "S", 5), ("dunmore", (17, 4), "S", 0), ("lisk", (24, 5), "S", 2),
+        ("achterberg", (7, 14), "E", 3), ("varga", (26, 14), "W", 4),
+        ("home", (10, 23), "E", 1), ("quan", (23, 23), "W", 0),
+        ("", (10, 29), "E", 2), ("", (23, 29), "W", 5)]
+    TURN = {"S": 0, "W": 1, "N": 2, "E": 3}
     solid_house = set()
     doors, garages = {}, {}
-    for owner, (ax, ay), long, look in homes:
-        fw, fh = (5, 4) if long == "x" else (4, 5)
-        for y in range(ay - fh + 1, ay + 1):
-            for x in range(ax - fw + 1, ax + 1):
-                solid_house.add((x, y))
-                g[y][x] = "#"
-        even = look % 2 == 0
-        if long == "x":
-            door = (ax + 1, ay if even else ay - 1)
-            gcells = [(ax - 3, ay + 1), (ax - 4, ay + 1)] if even else [(ax - 2, ay + 1), (ax - 3, ay + 1)]
-            gdir = (0, 1)
-        else:
-            door = (ax if even else ax - 1, ay + 1)
-            gcells = [(ax + 1, ay - 3), (ax + 1, ay - 4)] if even else [(ax + 1, ay - 2), (ax + 1, ay - 3)]
-            gdir = (1, 0)
-        doors[owner or "spare%d" % len(doors)] = door
-        garages[owner or "spare%d" % len(garages)] = (gcells, gdir)
+    for owner, (ax, ay), facing, look in homes:
+        turn = TURN[facing]
+        fw, fh = (5, 4) if turn % 2 == 0 else (4, 5)
+        cells = [(x, y) for y in range(ay - fh + 1, ay + 1) for x in range(ax - fw + 1, ax + 1)]
+        for (x, y) in cells:
+            solid_house.add((x, y))
+            g[y][x] = "#"
+        # street normal n and the along-the-front direction a (garage end first),
+        # turned a quarter clockwise per turn: (x, y) -> (-y, x)
+        n, al = (0, 1), (1, 0)
+        for _ in range(turn):
+            n, al = (-n[1], n[0]), (-al[1], al[0])
+        cs = set(cells)
+        front = sorted([c for c in cells if (c[0] + n[0], c[1] + n[1]) not in cs], key=lambda c: c[0] * al[0] + c[1] * al[1])
+        out = [(c[0] + n[0], c[1] + n[1]) for c in front]
+        door = out[3]
+        gcells = [out[1], out[0]]
+        key = owner or "spare%d" % len(doors)
+        doors[key] = door
+        garages[key] = (gcells, n)
 
     def inb(x, y):
         return 0 <= x < W and 0 <= y < H
@@ -250,13 +256,13 @@ def court_map():
             g[c[1]][c[0]] = "p"
             c = prev[c]
     home_door = doors["home"]
-    hg = garages["home"][0][0]
+    hg, hg2 = garages["home"][0]       # the two driveway cells at your garage door
     # Spots the hub and the scenes use. Every one must stay walkable.
     spots = {
         "home_door": list(home_door),
         "home_back": [home_door[0] + 1, home_door[1]],
-        "car": [hg[0] + 1, hg[1]],
-        "garage": [hg[0] + 1, hg[1] - 1],
+        "car": list(hg),
+        "garage": list(hg2),
         "mail": [12, 25],
         "bus": [17, 27],
         "hub_spawn": [home_door[0] + 2, home_door[1]],
@@ -272,8 +278,8 @@ def court_map():
         "drill_child": [doors["quan"][0], doors["quan"][1] + 2],
         "drill_elder": [doors["dunmore"][0] + 1, doors["dunmore"][1] + 2],
         "doors": {k: list(v) for k, v in doors.items() if not k.startswith("spare") and k != "home"},
-        "act1_radio": [hg[0] + 1, hg[1]],
-        "act1_garage": [hg[0] + 1, hg[1] - 1],
+        "act1_radio": list(hg),
+        "act1_garage": list(hg2),
     }
     keep = set()
     for k, v in spots.items():
@@ -345,14 +351,15 @@ def court_map():
     for (ax, ay) in [(5, 9), (21, 9), (6, 21), (19, 18), (24, 17), (11, 17), (20, 26), (8, 9)]:
         put(ax, ay, "M")
     # Parked cars in two neighbor driveways.
-    for key, ch in (("dunmore", "W"), ("achterberg", "v"), ("quan", "V")):
+    for key, truck in (("dunmore", True), ("achterberg", False), ("quan", False)):
         (x, y) = garages[key][0][0]
         dx, dy = garages[key][1]
+        ch = ("w" if truck else "v") if dx != 0 else ("W" if truck else "V")
         put(x + dx, y + dy, ch, "d")
     rows = ["".join(r) for r in g]
     validate_court(rows, spots, cook)
     return {"id": "court", "size": [W, H], "rows": rows, "spawn": [15, 27],
-            "homes": [{"owner": o, "cell": [a[0], a[1]], "long": l, "look": k} for o, a, l, k in homes],
+            "homes": [{"owner": o, "cell": [a[0], a[1]], "turn": TURN[f], "look": k} for o, a, f, k in homes],
             "spots": spots,
             "variants": {
                 "cookout": {"night": False, "spawn": [17, 17],
