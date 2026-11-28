@@ -1,0 +1,578 @@
+{
+ "range": {
+  "name": "The range on 47",
+  "size": [
+   12,
+   10
+  ],
+  "night": false,
+  "practice": true,
+  "loan_weapon": "rifle",
+  "kill_kind": "practice",
+  "tiles": "concrete",
+  "cover": [
+   [
+    6,
+    4,
+    "half"
+   ],
+   [
+    7,
+    4,
+    "half"
+   ],
+   [
+    3,
+    3,
+    "full"
+   ],
+   [
+    4,
+    3,
+    "full"
+   ]
+  ],
+  "props": {
+   "crate": [
+    [
+     6,
+     4
+    ],
+    [
+     7,
+     4
+    ],
+    [
+     3,
+     3
+    ],
+    [
+     4,
+     3
+    ]
+   ]
+  },
+  "party_cells": [
+   [
+    5,
+    8
+   ]
+  ],
+  "allies": [],
+  "enemies": [
+   {
+    "name": "Paper target, close",
+    "look": "char_civilian",
+    "cell": [
+     5,
+     5
+    ],
+    "hp": 20,
+    "ap": 1,
+    "skill": 0,
+    "weapon": "fists",
+    "dummy": true,
+    "grain": "sees_red",
+    "init": 1
+   },
+   {
+    "name": "Target behind sandbags",
+    "look": "char_civilian",
+    "cell": [
+     7,
+     3
+    ],
+    "hp": 20,
+    "ap": 1,
+    "skill": 0,
+    "weapon": "fists",
+    "dummy": true,
+    "grain": "sees_red",
+    "init": 1
+   },
+   {
+    "name": "Target behind the wall",
+    "look": "char_civilian",
+    "cell": [
+     3,
+     2
+    ],
+    "hp": 20,
+    "ap": 1,
+    "skill": 0,
+    "weapon": "fists",
+    "dummy": true,
+    "grain": "sees_red",
+    "init": 1
+   }
+  ],
+  "win": [
+   [
+    "flag",
+    "range_done"
+   ],
+   [
+    "log",
+    "Range day with Arlo: all three targets down."
+   ]
+  ],
+  "parley": [],
+  "lose": [],
+  "after": "arlo_range_after"
+ },
+ "pump_four": {
+  "name": "Pump Four",
+  "size": [
+   14,
+   12
+  ],
+  "night": false,
+  "kill_kind": "self_defense",
+  "tiles": "concrete",
+  "cover": [
+   [
+    6,
+    5,
+    "full"
+   ],
+   [
+    6,
+    6,
+    "full"
+   ],
+   [
+    8,
+    5,
+    "full"
+   ],
+   [
+    8,
+    6,
+    "full"
+   ],
+   [
+    3,
+    8,
+    "half"
+   ],
+   [
+    4,
+    8,
+    "half"
+   ],
+   [
+    10,
+    3,
+    "half"
+   ],
+   [
+    11,
+    3,
+    "half"
+   ],
+   [
+    2,
+    4,
+    "half"
+   ]
+  ],
+  "props": {
+   "car": [
+    [
+     3,
+     8
+    ]
+   ],
+   "crate": [
+    [
+     10,
+     3
+    ],
+    [
+     11,
+     3
+    ],
+    [
+     2,
+     4
+    ]
+   ],
+   "lamp": [
+    [
+     6,
+     5
+    ],
+    [
+     8,
+     5
+    ]
+   ]
+  },
+  "party_cells": [
+   [
+    3,
+    10
+   ]
+  ],
+  "allies": [],
+  "enemies": [
+   {
+    "name": "Siphon man",
+    "look": "char_raider",
+    "cell": [
+     9,
+     4
+    ],
+    "hp": 35,
+    "ap": 5,
+    "skill": 30,
+    "weapon": "pistol",
+    "strain": 35,
+    "discipline": 3,
+    "grain": "bolts",
+    "leader": true,
+    "init": 10
+   },
+   {
+    "name": "Can carrier",
+    "look": "char_worker",
+    "cell": [
+     11,
+     5
+    ],
+    "hp": 35,
+    "ap": 5,
+    "skill": 25,
+    "weapon": "knife",
+    "strain": 40,
+    "discipline": 3,
+    "grain": "bolts",
+    "init": 9
+   }
+  ],
+  "win": [
+   [
+    "fuel",
+    5
+   ],
+   [
+    "log",
+    "Pump Four: the fuel thieves are gone. The clerk filled your tank."
+   ]
+  ],
+  "parley": [
+   [
+    "log",
+    "Pump Four: they took their cans and left."
+   ]
+  ],
+  "lose": [
+   [
+    "strain",
+    "hero",
+    15
+   ],
+   [
+    "log",
+    "Pump Four: you came to on the concrete. Bruised, not broken. They took the cans and your wallet."
+   ],
+   [
+    "money",
+    -120
+   ]
+  ],
+  "after": "pump_four_after"
+ },
+ "carjack": {
+  "name": "Sylvan",
+  "size": [
+   14,
+   12
+  ],
+  "night": true,
+  "kill_kind": "self_defense",
+  "tiles": "asphalt",
+  "cover": [
+   [
+    5,
+    5,
+    "full"
+   ],
+   [
+    6,
+    5,
+    "full"
+   ],
+   [
+    9,
+    7,
+    "half"
+   ],
+   [
+    3,
+    3,
+    "half"
+   ],
+   [
+    10,
+    2,
+    "half"
+   ]
+  ],
+  "props": {
+   "car": [
+    [
+     5,
+     5
+    ],
+    [
+     9,
+     7
+    ]
+   ],
+   "tree": [
+    [
+     3,
+     3
+    ],
+    [
+     10,
+     2
+    ],
+    [
+     12,
+     9
+    ]
+   ]
+  },
+  "party_cells": [
+   [
+    4,
+    10
+   ],
+   [
+    5,
+    10
+   ],
+   [
+    3,
+    10
+   ]
+  ],
+  "allies": [
+   "teen",
+   "elder"
+  ],
+  "enemies": [
+   {
+    "name": "Man with a knife",
+    "look": "char_raider",
+    "cell": [
+     7,
+     3
+    ],
+    "hp": 45,
+    "ap": 6,
+    "skill": 35,
+    "weapon": "knife",
+    "strain": 30,
+    "discipline": 5,
+    "grain": "locks_up",
+    "leader": true,
+    "init": 11
+   },
+   {
+    "name": "Man with a pry bar",
+    "look": "char_worker",
+    "cell": [
+     8,
+     4
+    ],
+    "hp": 35,
+    "ap": 5,
+    "skill": 25,
+    "weapon": "tool",
+    "strain": 50,
+    "discipline": 3,
+    "grain": "bolts",
+    "init": 9
+   },
+   {
+    "name": "Hungry kid",
+    "look": "char_civilian",
+    "cell": [
+     6,
+     2
+    ],
+    "hp": 30,
+    "ap": 5,
+    "skill": 20,
+    "weapon": "fists",
+    "strain": 55,
+    "discipline": 2,
+    "grain": "bolts",
+    "init": 12
+   }
+  ],
+  "win": [
+   [
+    "log",
+    "Sylvan: the road is clear."
+   ]
+  ],
+  "parley": [
+   [
+    "log",
+    "Sylvan: they let you pass."
+   ]
+  ],
+  "lose": [
+   [
+    "strain",
+    "hero",
+    15
+   ],
+   [
+    "food",
+    -2
+   ],
+   [
+    "log",
+    "Sylvan: they took the bag and your shoes. You walked on in socks."
+   ]
+  ]
+ },
+ "night_attempt": {
+  "name": "The garage",
+  "size": [
+   12,
+   10
+  ],
+  "night": true,
+  "kill_kind": "defense_of_others",
+  "tiles": "concrete",
+  "cover": [
+   [
+    4,
+    4,
+    "full"
+   ],
+   [
+    5,
+    4,
+    "full"
+   ],
+   [
+    8,
+    6,
+    "half"
+   ],
+   [
+    2,
+    7,
+    "half"
+   ]
+  ],
+  "props": {
+   "car": [
+    [
+     4,
+     4
+    ]
+   ],
+   "crate": [
+    [
+     8,
+     6
+    ],
+    [
+     2,
+     7
+    ]
+   ]
+  },
+  "party_cells": [
+   [
+    2,
+    8
+   ],
+   [
+    3,
+    8
+   ],
+   [
+    1,
+    8
+   ]
+  ],
+  "allies": [
+   "partner",
+   "teen",
+   "elder"
+  ],
+  "enemies": [
+   {
+    "name": "Thief with a bar",
+    "look": "char_raider",
+    "cell": [
+     8,
+     2
+    ],
+    "hp": 35,
+    "ap": 5,
+    "skill": 30,
+    "weapon": "tool",
+    "strain": 45,
+    "discipline": 3,
+    "grain": "bolts",
+    "leader": true
+   },
+   {
+    "name": "Lookout",
+    "look": "char_worker",
+    "cell": [
+     10,
+     3
+    ],
+    "hp": 30,
+    "ap": 5,
+    "skill": 25,
+    "weapon": "knife",
+    "strain": 50,
+    "discipline": 3,
+    "grain": "bolts"
+   }
+  ],
+  "win": [
+   [
+    "log",
+    "The night thieves are gone."
+   ]
+  ],
+  "parley": [
+   [
+    "log",
+    "The night thieves backed off over the fence."
+   ]
+  ],
+  "lose": [
+   [
+    "food",
+    -5
+   ],
+   [
+    "fuel",
+    -4
+   ],
+   [
+    "strain",
+    "hero",
+    10
+   ],
+   [
+    "log",
+    "The thieves cleaned out part of the garage."
+   ]
+  ]
+ }
+}

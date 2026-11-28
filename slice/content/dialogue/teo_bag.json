@@ -1,0 +1,52 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "Teo Lisk",
+   "text": "Teo is on his ladder again. He climbs down holding a silver pouch. \"Shielding bag. I sealed spares for the radio club and had one left. Anything sealed in here should ride out a pulse that kills everything plugged in. Want it?\"",
+   "options": [
+    {
+     "text": "\"Yes. Show me how.\"",
+     "family": "talk",
+     "effects": [
+      [
+       "flag",
+       "seal_bag"
+      ],
+      [
+       "trust",
+       "lisk",
+       1
+      ],
+      [
+       "flag",
+       "teo_bag_given"
+      ]
+     ],
+     "next": "how"
+    },
+    {
+     "text": "\"Not yet.\"",
+     "family": "talk",
+     "next": "end"
+    }
+   ]
+  },
+  "how": {
+   "speaker": "Teo Lisk",
+   "text": "\"Small electronics only. Fold the top twice, tape it, test it with your phone: no signal, good seal.\"\n\n[How it works] In your garage, tap a device under Seal to put it in the bag. Sealed gear almost always survives the flash; unsealed electronics usually do not. Vehicles load by weight, and hardening steps lower the chance the engine dies.",
+   "options": [
+    {
+     "text": "Go to your garage.",
+     "effects": [
+      [
+       "garage"
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "teo_bag"
+}

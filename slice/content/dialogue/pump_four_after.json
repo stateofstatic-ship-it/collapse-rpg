@@ -1,0 +1,16 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "Tanager Fuel",
+   "text": "Sirens, finally. A deputy takes your statement on the hood of your car. \"You did fine,\" he says, in a voice that means he has seen people not do fine. {teen.name} is shaking a little and trying to hide it.",
+   "options": [
+    {
+     "text": "Home.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "pump_four_after"
+}

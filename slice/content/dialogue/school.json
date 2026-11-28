@@ -1,0 +1,60 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "{teen.name}'s school",
+   "route": [
+    {
+     "cond": [
+      [
+       "where",
+       "teen",
+       "home"
+      ]
+     ],
+     "next": "gone"
+    }
+   ],
+   "text": "Two teachers are holding the doors with a clipboard and a lantern, releasing students only to a parent or a card. The reunification rules from October's drill are working, more or less.\n\n{teen.name} spots you from the gym steps.",
+   "options": [
+    {
+     "text": "Sign {teen.name} out and go.",
+     "family": "talk",
+     "effects": [
+      [
+       "where",
+       "teen",
+       "@hero"
+      ],
+      [
+       "log",
+       "{teen.name} is with you."
+      ]
+     ],
+     "next": "with"
+    }
+   ]
+  },
+  "with": {
+   "speaker": "{teen.name}",
+   "text": "\"Everybody's saying it's a solar flare. It's not a solar flare, is it.\" {teen.name} is with you now and travels with you.",
+   "options": [
+    {
+     "text": "\"Let's go.\"",
+     "next": "end"
+    }
+   ]
+  },
+  "gone": {
+   "speaker": "{teen.name}'s school",
+   "text": "\"Already home,\" the teacher says, checking the list by lantern. \"Followed the card.\"",
+   "options": [
+    {
+     "text": "Good.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "school"
+}

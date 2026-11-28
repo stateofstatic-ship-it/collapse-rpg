@@ -1,0 +1,111 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "Tanager Fuel, Cornelius",
+   "text": "Saturday, October 2. You stop for gas with {teen.name} in the passenger seat. At pump four two men from out of town have a hose down the underground tank port and a row of red cans. The clerk is on the phone, hiding behind the counter.\n\nOne of them sees you see him. He lifts his shirt enough to show a pistol grip. \"Keep driving.\"",
+   "options": [
+    {
+     "text": "\"Police are four minutes out and the camera got your plates. Walk away now and it's just a bad day.\"",
+     "family": "talk",
+     "gate": [
+      "negotiation",
+      45
+     ],
+     "calm": true,
+     "effects": [
+      [
+       "habit",
+       "talk it down"
+      ],
+      [
+       "mercy",
+       1
+      ],
+      [
+       "log",
+       "You talked down the fuel thieves at Pump Four."
+      ]
+     ],
+     "next": "talked"
+    },
+    {
+     "text": "Drive away and call it in.",
+     "family": "sneak",
+     "effects": [
+      [
+       "habit",
+       "walk away"
+      ],
+      [
+       "log",
+       "You left Pump Four and called it in."
+      ]
+     ],
+     "next": "left"
+    },
+    {
+     "text": "Get out of the car.",
+     "family": "fight",
+     "effects": [
+      [
+       "habit",
+       "stand your ground"
+      ],
+      [
+       "battle",
+       "pump_four"
+      ]
+     ],
+     "next": "end"
+    },
+    {
+     "text": "Strike first, before he can draw.",
+     "family": "fight",
+     "effects": [
+      [
+       "habit",
+       "hit first"
+      ],
+      [
+       "flag",
+       "struck_first"
+      ],
+      [
+       "battle",
+       "pump_four"
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  },
+  "talked": {
+   "speaker": "Tanager Fuel",
+   "text": "A long second. Then the hose comes out of the port and they leave the cans. The clerk gives you a free fill-up and a look of something close to awe. {teen.name} doesn't say anything all the way home.",
+   "options": [
+    {
+     "text": "Home.",
+     "effects": [
+      [
+       "fuel",
+       5
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  },
+  "left": {
+   "speaker": "Tanager Fuel",
+   "text": "You pull out slowly. In the mirror one of them raises a can at you like a toast. The police arrive in nineteen minutes. They're gone.",
+   "options": [
+    {
+     "text": "Home.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "pump_four"
+}

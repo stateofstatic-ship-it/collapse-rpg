@@ -1,0 +1,314 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "The lantern meeting",
+   "text": "Day {day}. Eleven households in Ruth's garage, one lantern, too many opinions. Water first: the taps {tap_state}. Then food, then who watches the street at night.\n\nEveryone keeps looking at you. Some of that is Trust. Some of it is Profile.",
+   "options": [
+    {
+     "text": "Lay It Out: with three households already behind you, propose a common pantry and a watch rota.",
+     "family": "talk",
+     "cond": [
+      [
+       "trust_count",
+       2,
+       3
+      ]
+     ],
+     "effects": [
+      [
+       "flag",
+       "common_pantry"
+      ],
+      [
+       "quest",
+       "m2",
+       "done",
+       "common_pantry"
+      ],
+      [
+       "food",
+       6
+      ],
+      [
+       "log",
+       "M2: Common Pantry. The street pools its food and keeps a night watch. Cohesion +2."
+      ]
+     ],
+     "next": "pantry"
+    },
+    {
+     "text": "Propose a common pantry and a watch rota.",
+     "family": "talk",
+     "gate": [
+      "leadership",
+      40
+     ],
+     "cond": [
+      [
+       "not_flag",
+       "common_pantry"
+      ]
+     ],
+     "effects": [
+      [
+       "flag",
+       "common_pantry"
+      ],
+      [
+       "quest",
+       "m2",
+       "done",
+       "common_pantry"
+      ],
+      [
+       "food",
+       6
+      ],
+      [
+       "log",
+       "M2: Common Pantry."
+      ]
+     ],
+     "next": "pantry",
+     "fail": "no_pantry"
+    },
+    {
+     "text": "Build rain catchment off every downspout on the court.",
+     "family": "fix",
+     "gate": [
+      "homestead",
+      35
+     ],
+     "cond": [
+      [
+       "led",
+       "components",
+       2
+      ]
+     ],
+     "effects": [
+      [
+       "components",
+       -2
+      ],
+      [
+       "flag",
+       "catchment"
+      ],
+      [
+       "water",
+       22
+      ],
+      [
+       "quest",
+       "m2",
+       "done",
+       "catchment"
+      ],
+      [
+       "log",
+       "M2: rain catchment on the court, 22 water-days stored."
+      ]
+     ],
+     "next": "catch"
+    },
+    {
+     "text": "Offer the Achterbergs' farmhouse well your fuel for its hand pump: a well share.",
+     "family": "trade",
+     "cond": [
+      [
+       "led",
+       "fuel",
+       5
+      ]
+     ],
+     "effects": [
+      [
+       "fuel",
+       -5
+      ],
+      [
+       "flag",
+       "well_share"
+      ],
+      [
+       "quest",
+       "m2",
+       "done",
+       "well_share"
+      ],
+      [
+       "log",
+       "M2: Well Share. Ten gallons a month from the Achterberg well."
+      ]
+     ],
+     "next": "well"
+    },
+    {
+     "text": "Tell them about the Guard water point on Cornell Road.",
+     "family": "know",
+     "cond": [
+      [
+       "clue",
+       "guard_water"
+      ]
+     ],
+     "effects": [
+      [
+       "water",
+       10
+      ],
+      [
+       "standing",
+       "guard",
+       3
+      ],
+      [
+       "quest",
+       "m2",
+       "done",
+       "guard_point"
+      ],
+      [
+       "log",
+       "M2: the street walks to the Guard water point."
+      ]
+     ],
+     "next": "guard"
+    },
+    {
+     "text": "Keep quiet. Your family's stores are your family's.",
+     "family": "sneak",
+     "effects": [
+      [
+       "quest",
+       "m2",
+       "done",
+       "house_alone"
+      ],
+      [
+       "profile",
+       10
+      ],
+      [
+       "log",
+       "M2: House Alone. Profile +10."
+      ]
+     ],
+     "next": "alone"
+    }
+   ]
+  },
+  "no_pantry": {
+   "speaker": "The lantern meeting",
+   "text": "It falls apart over whose freezer counts. Nobody leaves angry, but nobody leaves agreed. Try another way, or go it alone.",
+   "options": [
+    {
+     "text": "Fall back on the catchment idea.",
+     "family": "fix",
+     "gate": [
+      "homestead",
+      35
+     ],
+     "cond": [
+      [
+       "led",
+       "components",
+       2
+      ]
+     ],
+     "effects": [
+      [
+       "components",
+       -2
+      ],
+      [
+       "flag",
+       "catchment"
+      ],
+      [
+       "water",
+       22
+      ],
+      [
+       "quest",
+       "m2",
+       "done",
+       "catchment"
+      ]
+     ],
+     "next": "catch"
+    },
+    {
+     "text": "Go it alone.",
+     "family": "sneak",
+     "effects": [
+      [
+       "quest",
+       "m2",
+       "done",
+       "house_alone"
+      ],
+      [
+       "profile",
+       10
+      ]
+     ],
+     "next": "alone"
+    }
+   ]
+  },
+  "pantry": {
+   "speaker": "Ruth Pellow",
+   "text": "Ruth writes it on the back of a calendar: who gives what, who watches when. \"I ran a dispatch board for thirty-one years,\" she says. \"I can run a pantry.\"\n\nCommon Pantry: the court shares food and keeps a watch. It is the first step toward a Court Charter.",
+   "options": [
+    {
+     "text": "Good.",
+     "next": "end"
+    }
+   ]
+  },
+  "catch": {
+   "speaker": "The lantern meeting",
+   "text": "By Day 6 every downspout on the court runs into a barrel or a trash can. November in the valley is wet; for once that's good news.",
+   "options": [
+    {
+     "text": "Good.",
+     "next": "end"
+    }
+   ]
+  },
+  "well": {
+   "speaker": "Hank Achterberg",
+   "text": "\"Pump's from 1952. Never needed power in its life.\" Ten gallons a month for your fuel, and a farmhouse that knows your name.",
+   "options": [
+    {
+     "text": "Good.",
+     "next": "end"
+    }
+   ]
+  },
+  "guard": {
+   "speaker": "The lantern meeting",
+   "text": "The Talbert Guard runs a water point at the Cornell Road fire station: a hardened pump, two soldiers, a census clipboard. They want names. They give water.",
+   "options": [
+    {
+     "text": "Good.",
+     "next": "end"
+    }
+   ]
+  },
+  "alone": {
+   "speaker": "The lantern meeting",
+   "text": "You say little and leave early. By the next night, the whole court has decided what it thinks your garage holds.",
+   "options": [
+    {
+     "text": "Home.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "lantern_meeting"
+}

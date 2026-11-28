@@ -1,0 +1,16 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "Saturday, October 9",
+   "text": "The wind comes up the valley at three in the afternoon and doesn't stop. By five the transformers on Baseline are popping blue one after another. The court goes dark.\n\nIt's a dress rehearsal nobody scheduled.\n\nThen {teen.name} shouts from the hall: {child.name} went out the back after {dog.name} when the lights died. Neither of them came back.",
+   "options": [
+    {
+     "text": "Grab a light and go find them.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "the_blow"
+}

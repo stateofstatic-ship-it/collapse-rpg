@@ -1,0 +1,16 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "Monday, November 1, 2027",
+   "text": "Breakfast. {partner.name} is late for the early shift and eating standing up. {elder.name} called from the care home in Forest Grove to complain about the oatmeal. {teen.name} is texting under the table. {child.name} wants to know why the sky looked green in a dream.\n\n\"I'll be home by seven,\" you say, and grab your keys, and the day is ordinary all the way to dusk.",
+   "options": [
+    {
+     "text": "Drive to work.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "breakfast"
+}

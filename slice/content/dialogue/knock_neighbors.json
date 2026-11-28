@@ -1,0 +1,100 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "A knock",
+   "text": "Two knocks tonight. The Achterbergs need water for formula. Marisol Quan wants to know whether it's true you have a whole garage of food. People talk; your Profile tells them where to knock.",
+   "options": [
+    {
+     "text": "Give the Achterbergs two water-days.",
+     "family": "trade",
+     "cond": [
+      [
+       "led",
+       "water",
+       2
+      ]
+     ],
+     "effects": [
+      [
+       "water",
+       -2
+      ],
+      [
+       "trust",
+       "achterberg",
+       1
+      ],
+      [
+       "mercy",
+       2
+      ]
+     ],
+     "next": "b"
+    },
+    {
+     "text": "Tell them the Guard has a water point on Cornell Road.",
+     "family": "know",
+     "cond": [
+      [
+       "clue",
+       "guard_water"
+      ]
+     ],
+     "effects": [
+      [
+       "trust",
+       "achterberg",
+       1
+      ]
+     ],
+     "next": "b"
+    },
+    {
+     "text": "\"We're stretched too. I'm sorry.\"",
+     "family": "talk",
+     "next": "b"
+    }
+   ]
+  },
+  "b": {
+   "speaker": "A knock",
+   "text": "Marisol is still on the step.",
+   "options": [
+    {
+     "text": "\"We've got enough to get by, same as you. Come to the meeting and we'll pool what we can.\"",
+     "family": "talk",
+     "gate": [
+      "guile",
+      25
+     ],
+     "effects": [
+      [
+       "profile",
+       -3
+      ]
+     ],
+     "next": "end",
+     "fail": "end"
+    },
+    {
+     "text": "\"Yes. And if we share it smart, it'll last the street a week.\"",
+     "family": "talk",
+     "effects": [
+      [
+       "trust",
+       "quan",
+       1
+      ],
+      [
+       "profile",
+       3
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "knock_neighbors"
+}

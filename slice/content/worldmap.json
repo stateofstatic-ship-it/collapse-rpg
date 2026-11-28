@@ -1,0 +1,63 @@
+{
+ "_source": "Node miles are rough road distances (hypothesis). Travel: foot 15 miles a day, bicycle 40, Old Iron 120 (f4.md).",
+ "nodes": {
+  "tvhwy": {
+   "name": "TV Highway, Hillsboro",
+   "pos": [
+    640,
+    560
+   ],
+   "map": "tvhwy",
+   "blurb": "Where the flash caught you."
+  },
+  "home": {
+   "name": "Thimbleberry Court",
+   "pos": [
+    760,
+    430
+   ],
+   "map": "court",
+   "blurb": "Home."
+  },
+  "school": {
+   "name": "{teen.name}'s school",
+   "pos": [
+    960,
+    560
+   ],
+   "dialogue": "school",
+   "blurb": "{teen.name} was at practice."
+  },
+  "sorrel": {
+   "name": "Sorrel House, Forest Grove",
+   "pos": [
+    330,
+    410
+   ],
+   "dialogue": "sorrel",
+   "blurb": "{elder.name}'s care home."
+  },
+  "hospital": {
+   "name": "The hill hospital, Portland",
+   "pos": [
+    1400,
+    360
+   ],
+   "dialogue": "hospital",
+   "approach": "west_hills",
+   "blurb": "{partner.name}'s shift. Across the West Hills."
+  }
+ },
+ "links": {
+  "tvhwy>home": 2.5,
+  "home>school": 2.5,
+  "tvhwy>school": 2.0,
+  "home>sorrel": 7.0,
+  "school>sorrel": 8.0,
+  "tvhwy>sorrel": 6.0,
+  "home>hospital": 17.0,
+  "tvhwy>hospital": 16.0,
+  "school>hospital": 17.0,
+  "sorrel>hospital": 23.0
+ }
+}

@@ -1,0 +1,108 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "Teo Lisk",
+   "text": "Teo teaches the ham radio night class at the community college and has a box fan with a furnace filter taped to it, which he swears is the best thing you can do for smoke.\n\n\"Air's going to get bad tomorrow. That's the last fan at the hardware store and it's mine. I'd sell it, though. Sixty bucks, or that camp stove of yours, or you owe me a Saturday on my roof.\"",
+   "options": [
+    {
+     "text": "Pay $60.",
+     "family": "trade",
+     "cost_money": 60,
+     "effects": [
+      [
+       "flag",
+       "clean_room"
+      ],
+      [
+       "trust",
+       "lisk",
+       1
+      ]
+     ],
+     "next": "deal"
+    },
+    {
+     "text": "Trade the camp stove.",
+     "family": "trade",
+     "cond": [
+      [
+       "item",
+       "camp_stove"
+      ]
+     ],
+     "effects": [
+      [
+       "item",
+       "camp_stove",
+       -1
+      ],
+      [
+       "flag",
+       "clean_room"
+      ],
+      [
+       "trust",
+       "lisk",
+       1
+      ]
+     ],
+     "next": "deal"
+    },
+    {
+     "text": "\"A Saturday on your roof. Done.\"",
+     "family": "trade",
+     "effects": [
+      [
+       "flag",
+       "clean_room"
+      ],
+      [
+       "trust",
+       "lisk",
+       1
+      ],
+      [
+       "tally",
+       "teo_roof",
+       "Spend a Saturday on Teo's roof"
+      ]
+     ],
+     "next": "deal"
+    },
+    {
+     "text": "\"We'll manage.\"",
+     "family": "talk",
+     "next": "nope"
+    }
+   ]
+  },
+  "deal": {
+   "speaker": "Teo Lisk",
+   "text": "\"Shut one room, run the fan, keep the kid in there. The EPA calls it a clean room.\" He winks. \"And come to the class. Week two, four or six. A license gets you on the Air pins.\"",
+   "options": [
+    {
+     "text": "Move on.",
+     "next": "end"
+    }
+   ]
+  },
+  "nope": {
+   "speaker": "Teo Lisk",
+   "text": "\"Your call.\" Tomorrow {child.name} will use two inhaler-days instead of one.",
+   "options": [
+    {
+     "text": "Move on.",
+     "effects": [
+      [
+       "inhalers",
+       -1
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "cookout_teo"
+}

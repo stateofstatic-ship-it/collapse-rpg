@@ -1,0 +1,185 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "The West Hills",
+   "text": "The hill hospital is on the far side of the West Hills. The highway tunnel is a dark throat full of dead cars and people walking with their hands on the wall. The light rail tunnel beside it is darker and three miles long.",
+   "options": [
+    {
+     "text": "Walk the rail tunnel in the dark. Shorter, and nobody else is in there.",
+     "family": "sneak",
+     "gate": [
+      "stealth",
+      30
+     ],
+     "effects": [
+      [
+       "flag",
+       "via_tunnel"
+      ],
+      [
+       "log",
+       "You walked the dark rail tunnel under the West Hills."
+      ]
+     ],
+     "next": "end",
+     "fail": "tunnel_bad"
+    },
+    {
+     "text": "Take the old road over the top through Sylvan.",
+     "family": "fight",
+     "effects": [
+      [
+       "flag",
+       "via_sylvan"
+      ]
+     ],
+     "next": "sylvan"
+    },
+    {
+     "text": "Go the long way round by Cornell Road. Two more watches, nobody on it.",
+     "family": "talk",
+     "effects": [
+      [
+       "time",
+       2
+      ],
+      [
+       "strain",
+       "hero",
+       4
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  },
+  "tunnel_bad": {
+   "speaker": "The rail tunnel",
+   "text": "Halfway in you lose the wall, then your nerve. You come out the way you went in an hour later, shaking, and take the long road. (+8 Strain, a watch lost.)",
+   "options": [
+    {
+     "text": "Over the top, then.",
+     "effects": [
+      [
+       "strain",
+       "hero",
+       8
+      ],
+      [
+       "time",
+       1
+      ]
+     ],
+     "next": "sylvan"
+    }
+   ]
+  },
+  "sylvan": {
+   "speaker": "Sylvan",
+   "route": [
+    {
+     "cond": [
+      [
+       "profile_lt",
+       0
+      ]
+     ],
+     "next": "end"
+    }
+   ],
+   "text": "At the top of the hill three men have a dead minivan across the road and are going through a stopped car's trunk while its owner sits on the curb. One has a pry bar. One has a knife. The third looks at you and says, \"Bag. Shoes. Keep walking.\"",
+   "options": [
+    {
+     "text": "\"Three of you, one tired person with nothing worth a fight. You don't want this.\"",
+     "family": "talk",
+     "gate": [
+      "negotiation",
+      45
+     ],
+     "calm": true,
+     "effects": [
+      [
+       "mercy",
+       1
+      ],
+      [
+       "log",
+       "You talked your way through the Sylvan carjackers."
+      ]
+     ],
+     "next": "talked",
+     "fail": "fight_now"
+    },
+    {
+     "text": "Hand over the bag and walk on.",
+     "family": "trade",
+     "effects": [
+      [
+       "food",
+       -2
+      ],
+      [
+       "strain",
+       "hero",
+       6
+      ],
+      [
+       "log",
+       "You paid the Sylvan carjackers with your bag."
+      ]
+     ],
+     "next": "paid"
+    },
+    {
+     "text": "Fight.",
+     "family": "fight",
+     "effects": [
+      [
+       "battle",
+       "carjack"
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  },
+  "fight_now": {
+   "speaker": "Sylvan",
+   "text": "\"Wrong answer.\" The one with the pry bar steps in.",
+   "options": [
+    {
+     "text": "Fight.",
+     "effects": [
+      [
+       "battle",
+       "carjack"
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  },
+  "talked": {
+   "speaker": "Sylvan",
+   "text": "The leader holds your eyes for a long moment, then jerks his head. You walk past. The car's owner walks with you, very fast.",
+   "options": [
+    {
+     "text": "On to the hospital.",
+     "next": "end"
+    }
+   ]
+  },
+  "paid": {
+   "speaker": "Sylvan",
+   "text": "They take the bag and the two days of food in it and let you pass. It is the cheapest thing that could have happened. It doesn't feel cheap.",
+   "options": [
+    {
+     "text": "On to the hospital.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "west_hills"
+}

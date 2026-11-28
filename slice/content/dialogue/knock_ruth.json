@@ -1,0 +1,119 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "Ruth Pellow",
+   "text": "Ruth's bottles are running down. She is calm about it in the way dispatchers are calm. \"Day two. I've got maybe a day.\"",
+   "options": [
+    {
+     "text": "Run her concentrator off the power station.",
+     "family": "fix",
+     "cond": [
+      [
+       "working",
+       "power_station"
+      ]
+     ],
+     "effects": [
+      [
+       "trust",
+       "pellow",
+       1
+      ],
+      [
+       "keep_tally",
+       "ruth_knock"
+      ],
+      [
+       "flag",
+       "ruth_powered"
+      ],
+      [
+       "profile",
+       2
+      ],
+      [
+       "log",
+       "Your power station runs Ruth's oxygen at night. The hum carries."
+      ]
+     ],
+     "next": "powered"
+    },
+    {
+     "text": "Ask {partner.name} what can be done.",
+     "family": "know",
+     "cond": [
+      [
+       "where",
+       "partner",
+       "home"
+      ]
+     ],
+     "effects": [
+      [
+       "trust",
+       "pellow",
+       1
+      ],
+      [
+       "keep_tally",
+       "ruth_knock"
+      ],
+      [
+       "log",
+       "{partner.name} set Ruth's flow low and found her a seat in the Guard's water-point medical tent."
+      ]
+     ],
+     "next": "dana"
+    },
+    {
+     "text": "Sit with her, and keep the chain going.",
+     "family": "talk",
+     "effects": [
+      [
+       "keep_tally",
+       "ruth_knock"
+      ],
+      [
+       "trust",
+       "pellow",
+       1
+      ]
+     ],
+     "next": "sit"
+    }
+   ]
+  },
+  "powered": {
+   "speaker": "Ruth Pellow",
+   "text": "The concentrator hums back to life on your battery. \"That's the best sound I've heard in two days.\" Every neighbor on the court can hear it too.",
+   "options": [
+    {
+     "text": "Good night.",
+     "next": "end"
+    }
+   ]
+  },
+  "dana": {
+   "speaker": "Ruth Pellow",
+   "text": "\"Your {partner.name}'s a good one.\" She will make it. Not everyone on oxygen in this valley will.",
+   "options": [
+    {
+     "text": "Good night.",
+     "next": "end"
+    }
+   ]
+  },
+  "sit": {
+   "speaker": "Ruth Pellow",
+   "text": "You sit with her until the lantern burns low. She tells you about the night of the '96 flood, when the board lit up from end to end. \"We got through that too.\"",
+   "options": [
+    {
+     "text": "Good night.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "knock_ruth"
+}

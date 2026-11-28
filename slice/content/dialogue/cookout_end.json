@@ -1,0 +1,16 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "Sunday, September 12",
+   "text": "By Sunday the smoke has thinned to a brown edge on the horizon. {partner.name} spreads the hospital's surge-drill checklist on the kitchen table: one kit and one plan for every hazard, the way the state's 2 Weeks Ready asks.\n\nThe family adopts the Bedrock as its first shared goal: Water, Pantry, Warmth, Medicine, Circle, Plan and Skills. The fridge card will name one gap each week.\n\nFrom here, each week has three blocks: Weeknights, Saturday and Sunday. Orders ship two Mondays out. October 17 is the Last Truck.",
+   "options": [
+    {
+     "text": "Open the week planner.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "cookout_end"
+}

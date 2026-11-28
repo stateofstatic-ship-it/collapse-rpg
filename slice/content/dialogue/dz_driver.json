@@ -1,0 +1,175 @@
+{
+ "start": "a",
+ "route": [],
+ "nodes": {
+  "a": {
+   "speaker": "A crashed sedan",
+   "route": [
+    {
+     "cond": [
+      [
+       "flag",
+       "driver_done"
+      ]
+     ],
+     "next": "done"
+    }
+   ],
+   "text": "A sedan coasted into a light pole when its steering assist died. The driver's door is crumpled shut and a young man inside is pinned at the knee, calling out in Spanish and then in English for anyone.",
+   "options": [
+    {
+     "text": "Pry the door with the tools from your trunk.",
+     "family": "fix",
+     "gate": [
+      "mechanics",
+      25
+     ],
+     "effects": [
+      [
+       "flag",
+       "driver_done"
+      ],
+      [
+       "mercy",
+       3
+      ],
+      [
+       "strain",
+       "hero",
+       -3
+      ],
+      [
+       "log",
+       "You pried Rafael Ochoa out of his car on TV Highway."
+      ]
+     ],
+     "next": "freed",
+     "fail": "pry_fail"
+    },
+    {
+     "text": "Brace his leg and talk him through it while two others pull the door.",
+     "family": "talk",
+     "gate": [
+      "medicine",
+      30
+     ],
+     "effects": [
+      [
+       "flag",
+       "driver_done"
+      ],
+      [
+       "mercy",
+       3
+      ],
+      [
+       "log",
+       "You and two strangers freed Rafael Ochoa on TV Highway."
+      ]
+     ],
+     "next": "freed",
+     "fail": "brace_fail"
+    },
+    {
+     "text": "Leave him. Your family is out there.",
+     "family": "sneak",
+     "effects": [
+      [
+       "flag",
+       "driver_done"
+      ],
+      [
+       "flag",
+       "left_driver"
+      ],
+      [
+       "strain",
+       "hero",
+       6
+      ]
+     ],
+     "next": "left"
+    }
+   ]
+  },
+  "pry_fail": {
+   "speaker": "A crashed sedan",
+   "text": "The bar slips twice and the door doesn't move. A nurse coming off shift at the clinic down the road takes over and gets him out; you hold the light. It takes an hour. (A missed gate costs time, never the scene.)",
+   "options": [
+    {
+     "text": "Go.",
+     "effects": [
+      [
+       "flag",
+       "driver_done"
+      ],
+      [
+       "mercy",
+       2
+      ],
+      [
+       "time",
+       1
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  },
+  "brace_fail": {
+   "speaker": "A crashed sedan",
+   "text": "You don't know how to brace it and he screams when they pull. He's out, though, and breathing. It takes an hour you didn't have.",
+   "options": [
+    {
+     "text": "Go.",
+     "effects": [
+      [
+       "flag",
+       "driver_done"
+      ],
+      [
+       "mercy",
+       2
+      ],
+      [
+       "time",
+       1
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  },
+  "freed": {
+   "speaker": "Rafael Ochoa",
+   "text": "He's out, white-faced, holding your sleeve. \"Rafael. Ochoa. I live by the fairgrounds. If you need something, I'm the guy with the welding truck that doesn't work anymore.\"\n\nStrangers help at crashes. Most people, most of the time, do.",
+   "options": [
+    {
+     "text": "Go.",
+     "next": "end"
+    }
+   ]
+  },
+  "left": {
+   "speaker": "A crashed sedan",
+   "text": "You walk on. Behind you, someone else stops. You don't look back to see if it was enough.",
+   "options": [
+    {
+     "text": "Go.",
+     "next": "end"
+    }
+   ]
+  },
+  "done": {
+   "speaker": "A crashed sedan",
+   "text": "The sedan sits empty against the pole.",
+   "options": [
+    {
+     "text": "Back.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "dz_driver"
+}

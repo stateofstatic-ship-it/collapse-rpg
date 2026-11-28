@@ -1,0 +1,29 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "Arlo Dunmore",
+   "text": "\"You've done that before,\" Arlo says, which you haven't.\n\n[How it works] Every action costs Action Points (AP). Quick shots are cheap; aimed shots cost more and hit more often. Cover between you and a target cuts the odds. Tap a foe to see the exact chance before you commit. A hit 40 points under the odds is a solid hit for half again the damage.\n\nFirearms +3. Real fights also have Call Out (make them back down) and Parley (let them leave).",
+   "options": [
+    {
+     "text": "Drive home.",
+     "effects": [
+      [
+       "skill",
+       "hero",
+       "firearms",
+       3
+      ],
+      [
+       "trust",
+       "dunmore",
+       1
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "arlo_range_after"
+}

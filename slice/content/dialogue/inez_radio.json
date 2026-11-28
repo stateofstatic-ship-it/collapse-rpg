@@ -1,0 +1,47 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "Inez Varga",
+   "text": "Inez has her handheld radio on the porch rail and a notebook full of call signs. \"The hams hear things before the news does. Want to listen in for an hour?\"",
+   "options": [
+    {
+     "text": "\"Show me.\"",
+     "family": "talk",
+     "effects": [
+      [
+       "checks",
+       3
+      ],
+      [
+       "trust",
+       "varga",
+       1
+      ],
+      [
+       "flag",
+       "inez_radio"
+      ]
+     ],
+     "next": "how"
+    },
+    {
+     "text": "\"Another time.\"",
+     "family": "talk",
+     "next": "end"
+    }
+   ]
+  },
+  "how": {
+   "speaker": "Inez Varga",
+   "text": "\"Half of it is noise. The trick is which stories hold up when you check them.\"\n\n[How it works] The Signal Board lists the news about seven possible disasters. Each look tells you if a story holds up. Stories that hold up raise the odds for that disaster. You get 3 extra looks tonight.",
+   "options": [
+    {
+     "text": "Open the Signal Board.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "inez_radio"
+}

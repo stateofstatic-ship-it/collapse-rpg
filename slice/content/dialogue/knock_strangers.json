@@ -1,0 +1,49 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "A knock",
+   "text": "Three strangers at the door after dark: a man, a woman, a boy of about twelve. They walked from Beaverton. Someone told them this house has food.",
+   "options": [
+    {
+     "text": "Give them three food-days and directions to the Guard water point.",
+     "family": "trade",
+     "cond": [
+      [
+       "led",
+       "food",
+       3
+      ]
+     ],
+     "effects": [
+      [
+       "food",
+       -3
+      ],
+      [
+       "mercy",
+       4
+      ],
+      [
+       "profile",
+       2
+      ]
+     ],
+     "next": "end"
+    },
+    {
+     "text": "Through the door: \"Nothing here. Try the church on Baseline.\"",
+     "family": "talk",
+     "effects": [
+      [
+       "mercy",
+       -1
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "knock_strangers"
+}

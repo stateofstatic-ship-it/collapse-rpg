@@ -1,0 +1,57 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "Day 7",
+   "route": [
+    {
+     "cond": [
+      [
+       "flag",
+       "partner_stays"
+      ],
+      [
+       "not_where",
+       "partner",
+       "home"
+      ]
+     ],
+     "next": "dana_walks"
+    }
+   ],
+   "text": "A week. The court is still here.",
+   "options": [
+    {
+     "text": "Read the week.",
+     "effects": [
+      [
+       "end_act"
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  },
+  "dana_walks": {
+   "speaker": "Day 7",
+   "text": "{partner.name} walks up the court at dusk, exactly when promised, thinner, with a bag of hospital dressings over one shoulder. \"Told you.\"",
+   "options": [
+    {
+     "text": "Read the week.",
+     "effects": [
+      [
+       "where",
+       "partner",
+       "home"
+      ],
+      [
+       "end_act"
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "day7"
+}

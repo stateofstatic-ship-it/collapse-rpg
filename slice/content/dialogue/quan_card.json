@@ -1,0 +1,95 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "Marisol Quan",
+   "text": "The door opens on the chain. Marisol is in scrubs from the overnight shift at the plant, and there is a hum from the back bedroom you recognize: a CPAP.\n\n\"Ruth sent you? She still does this?\"",
+   "options": [
+    {
+     "text": "\"She does. If the power goes, somebody knocks here inside a day.\"",
+     "family": "talk",
+     "effects": [
+      [
+       "trust",
+       "quan",
+       1
+      ],
+      [
+       "flag",
+       "quan_done"
+      ],
+      [
+       "quest",
+       "quan_card",
+       "done"
+      ]
+     ],
+     "next": "ok"
+    },
+    {
+     "text": "\"That's your CPAP running. Do you have a battery for it?\"",
+     "family": "know",
+     "gate": [
+      "medicine",
+      20
+     ],
+     "effects": [
+      [
+       "trust",
+       "quan",
+       2
+      ],
+      [
+       "flag",
+       "quan_done"
+      ],
+      [
+       "quest",
+       "quan_card",
+       "done"
+      ]
+     ],
+     "fail": "ok",
+     "fail_effects": [
+      [
+       "trust",
+       "quan",
+       1
+      ],
+      [
+       "flag",
+       "quan_done"
+      ],
+      [
+       "quest",
+       "quan_card",
+       "done"
+      ]
+     ],
+     "next": "cpap"
+    }
+   ]
+  },
+  "ok": {
+   "speaker": "Marisol Quan",
+   "text": "She takes the card. \"Tell Ruth I'm sorry about the door.\"\n\nTask done. Trust with the Quans went up. Trusting households share, warn and help when it matters.",
+   "options": [
+    {
+     "text": "Back to the street.",
+     "next": "end"
+    }
+   ]
+  },
+  "cpap": {
+   "speaker": "Marisol Quan",
+   "text": "Her shoulders drop. \"No. I've been meaning to.\" You talk her through a deep-cycle battery and an inverter for ten minutes on the step.\n\nNoticing what someone needs is worth more Trust than delivering the card.",
+   "options": [
+    {
+     "text": "Back to the street.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "quan_card"
+}

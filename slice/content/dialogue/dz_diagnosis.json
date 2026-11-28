@@ -1,0 +1,89 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "What is this?",
+   "text": "You have seen: {clue_list}.\n\nSeveral collapses look alike for the first hour. What do the signs say?",
+   "options": [
+    {
+     "text": "A pulse from high up. Something physical hit every circuit at once: old iron runs, new cars and phones died.",
+     "cond": [
+      [
+       "clue",
+       "old_truck"
+      ]
+     ],
+     "family": "know",
+     "effects": [
+      [
+       "flag",
+       "diagnosed"
+      ]
+     ],
+     "next": "right"
+    },
+    {
+     "text": "A pulse from high up. Phones died in people's hands and there's nothing in the sky.",
+     "cond": [
+      [
+       "clue",
+       "phones"
+      ],
+      [
+       "clue",
+       "sky"
+      ]
+     ],
+     "family": "know",
+     "effects": [
+      [
+       "flag",
+       "diagnosed"
+      ]
+     ],
+     "next": "right"
+    },
+    {
+     "text": "A cyberattack on the grid.",
+     "family": "know",
+     "next": "wrong"
+    },
+    {
+     "text": "A big blackout. It'll be back by morning.",
+     "family": "know",
+     "next": "wrong"
+    }
+   ]
+  },
+  "wrong": {
+   "speaker": "What is this?",
+   "text": "That doesn't explain a dead phone in a stranger's hand, or a car with no wires to cut. You'll know soon enough. Everyone will.",
+   "options": [
+    {
+     "text": "Keep looking.",
+     "next": "end"
+    }
+   ]
+  },
+  "right": {
+   "speaker": "STOPPED CLOCKS",
+   "text": "One silent flash above the clouds has killed the grid and most electronics for longer than a year. No outside help is coming; everywhere is here.\n\nWhat still works: Old Iron (points and carburetors, hand tools, bicycles) and whatever you sealed away. What doesn't: almost everything you bought after 1980.\n\nOne doubt remains: is a war coming next? The Relay's ham operators will know, if you can hear them.\n\nLesson perk gained: Light Discipline. Your household's light adds half the Profile, and the dark is a little less blind.",
+   "options": [
+    {
+     "text": "Get home.",
+     "effects": [
+      [
+       "perk",
+       "light_discipline"
+      ],
+      [
+       "flash_report"
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "dz_diagnosis"
+}

@@ -1,0 +1,83 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "The radio",
+   "route": [
+    {
+     "cond": [
+      [
+       "flag",
+       "heard_relay"
+      ]
+     ],
+     "next": "done"
+    }
+   ],
+   "text": "{radio_state}",
+   "options": [
+    {
+     "text": "Listen to the Evening Net.",
+     "cond": [
+      [
+       "any",
+       [
+        "working",
+        "shortwave"
+       ],
+       [
+        "working",
+        "handheld_radio"
+       ]
+      ]
+     ],
+     "effects": [
+      [
+       "flag",
+       "heard_relay"
+      ],
+      [
+       "clue",
+       "guard_water"
+      ],
+      [
+       "standing",
+       "relay",
+       5
+      ],
+      [
+       "log",
+       "The Relay's Evening Net: no ground bursts anywhere. The Guard has water at Cornell Road. Bald Peak asks for runners."
+      ]
+     ],
+     "next": "net"
+    },
+    {
+     "text": "Put it down.",
+     "next": "end"
+    }
+   ]
+  },
+  "net": {
+   "speaker": "The Relay, Evening Net",
+   "text": "A woman's voice, calm and dry, reading traffic in turn: \"This is net control at Bald Peak. No reports of ground bursts anywhere on this net or the ones we relay. Repeat, no ground bursts. The Talbert Guard is running water at the Cornell Road fire station. Hospitals need runners. Next station.\"\n\nThe war doubt lifts a little. Nobody else on the court knows this yet.",
+   "options": [
+    {
+     "text": "Write it down.",
+     "next": "end"
+    }
+   ]
+  },
+  "done": {
+   "speaker": "The radio",
+   "text": "Static, and then the net again at eight.",
+   "options": [
+    {
+     "text": "Off.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "relay_radio"
+}

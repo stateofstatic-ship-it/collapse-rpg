@@ -1,0 +1,270 @@
+{
+ "_note": "Item records (tech.md content pipeline). tier sets the Stopped Clocks dead chance (f4.md Dead tiers). The prep-kit catalog is owned by another thread; these are the slice's placeholders.",
+ "items": {
+  "phone": {
+   "name": "Phone",
+   "weight": 0.5,
+   "tier": "handheld",
+   "tags": [
+    "device"
+   ]
+  },
+  "laptop": {
+   "name": "Laptop",
+   "weight": 4,
+   "tier": "plugged",
+   "tags": [
+    "device"
+   ]
+  },
+  "handheld_radio": {
+   "name": "Handheld two-way radio",
+   "weight": 0.6,
+   "tier": "handheld",
+   "tags": [
+    "device",
+    "radio"
+   ],
+   "hours": 200
+  },
+  "shortwave": {
+   "name": "Shortwave receiver",
+   "weight": 1,
+   "tier": "handheld",
+   "tags": [
+    "device",
+    "radio"
+   ]
+  },
+  "power_station": {
+   "name": "Battery power station",
+   "weight": 43,
+   "tier": "inverter",
+   "tags": [
+    "device",
+    "power"
+   ]
+  },
+  "solar_panel": {
+   "name": "Folding solar panel",
+   "weight": 12,
+   "tier": "panel",
+   "tags": [
+    "power"
+   ]
+  },
+  "led_lantern": {
+   "name": "LED lantern",
+   "weight": 1,
+   "tier": "handheld",
+   "tags": [
+    "device",
+    "light"
+   ]
+  },
+  "oil_lantern": {
+   "name": "Oil lantern",
+   "weight": 2,
+   "tier": "mechanical",
+   "tags": [
+    "light"
+   ]
+  },
+  "bicycle": {
+   "name": "Bicycle",
+   "weight": 30,
+   "tier": "mechanical",
+   "tags": [
+    "travel"
+   ]
+  },
+  "hand_tools": {
+   "name": "Hand tools",
+   "weight": 15,
+   "tier": "mechanical",
+   "tags": [
+    "tools"
+   ]
+  },
+  "camp_stove": {
+   "name": "Camp stove",
+   "weight": 5,
+   "tier": "mechanical",
+   "tags": [
+    "heat"
+   ]
+  },
+  "water_filter": {
+   "name": "Gravity water filter",
+   "weight": 6,
+   "tier": "mechanical",
+   "tags": [
+    "water"
+   ]
+  },
+  "rifle": {
+   "name": "Rifle",
+   "weight": 8,
+   "tier": "mechanical",
+   "tags": [
+    "weapon"
+   ],
+   "weapon": "rifle"
+  },
+  "pistol": {
+   "name": "Pistol",
+   "weight": 2,
+   "tier": "mechanical",
+   "tags": [
+    "weapon"
+   ],
+   "weapon": "pistol"
+  },
+  "body_armor": {
+   "name": "Plate carrier",
+   "weight": 18,
+   "tier": "mechanical",
+   "tags": [
+    "armor"
+   ]
+  },
+  "food_bucket": {
+   "name": "Food bucket (6 food-days)",
+   "weight": 30,
+   "tier": "consumable",
+   "tags": [
+    "food"
+   ],
+   "food_days": 6
+  },
+  "water_jugs": {
+   "name": "Water jugs (2 water-days)",
+   "weight": 85,
+   "tier": "consumable",
+   "tags": [
+    "water"
+   ],
+   "water_days": 2
+  },
+  "med_bag": {
+   "name": "Medic bag",
+   "weight": 12,
+   "tier": "consumable",
+   "tags": [
+    "medical"
+   ],
+   "kits": 1
+  },
+  "fuel_can": {
+   "name": "Fuel can (5 gal, stabilized)",
+   "weight": 32,
+   "tier": "consumable",
+   "tags": [
+    "fuel"
+   ],
+   "fuel": 5
+  },
+  "paper_maps": {
+   "name": "Paper maps",
+   "weight": 0.5,
+   "tier": "mechanical",
+   "tags": [
+    "plan"
+   ]
+  },
+  "spare_parts": {
+   "name": "Spare vehicle parts",
+   "weight": 20,
+   "tier": "consumable",
+   "tags": [
+    "parts"
+   ],
+   "components": 3
+  }
+ },
+ "dead_chance": {
+  "_source": "f4.md as revised 2026-11-25 at Prime's request: 75% of every unshielded item that needs electronics is Dead, vehicles included. Old Iron, tube sets, relays and panels are exempt. Fiction beyond public data.",
+  "electronic": 75,
+  "plugged": 75,
+  "handheld": 75,
+  "inverter": 75,
+  "vehicle_post2005": 95,
+  "vehicle_1980_2005": 75,
+  "vehicle_pre1980": 10,
+  "panel": 5,
+  "mechanical": 0,
+  "consumable": 0,
+  "shielded": 5
+ },
+ "vehicles": {
+  "family_car": {
+   "name": "Family hatchback (2019)",
+   "era": "vehicle_post2005",
+   "capacity": 400,
+   "mpg": 34
+  },
+  "rig_90s": {
+   "name": "1990s 4x4 (straight-six, fuel injected)",
+   "era": "vehicle_1980_2005",
+   "capacity": 900,
+   "mpg": 16,
+   "price": 3200
+  },
+  "old_iron": {
+   "name": "1968 pickup (points ignition)",
+   "era": "vehicle_pre1980",
+   "capacity": 1100,
+   "mpg": 12,
+   "price": 4500
+  }
+ },
+ "hardening": {
+  "_source": "prep90.md Go Kit vehicle hardening (2026-11-25): options stack on the vehicle's loss roll, never below 35%. Tarp gives nothing to small gear inside. Odds are fiction.",
+  "floor": 35,
+  "options": {
+   "tarp": {
+    "name": "Conductive tarp draped to the floor",
+    "minus": 20,
+    "cost": 180,
+    "note": "Concrete does not close the bottom of the shell. Partial at best."
+   },
+   "battery_off": {
+    "name": "Battery kept disconnected",
+    "minus": 10,
+    "cost": 0,
+    "note": "A weekly habit. One turn to reconnect on Day Zero."
+   },
+   "ferrites": {
+    "name": "Clip-on ferrite chokes on the harness",
+    "minus": 5,
+    "cost": 40,
+    "note": "Damps fast surges on a cable: a minor gain, not a fix."
+   },
+   "suppressors": {
+    "name": "Inline suppressors on the engine computer's lines",
+    "minus": 15,
+    "cost": 150,
+    "gate": [
+     "electronics",
+     50
+    ],
+    "note": "Each line needs the right part. A missed gate makes the engine stall at random until undone."
+   },
+   "surge_plug": {
+    "name": "Surge plug in the lighter socket",
+    "minus": 0,
+    "cost": 25,
+    "note": "Sits on one branch, far from the engine computer, too slow for the fast pulse. It does nothing."
+   }
+  },
+  "restore": {
+   "gate": [
+    "mechanics",
+    35
+   ],
+   "chance": 70,
+   "note": "A spare engine computer, ignition module and crank sensor in a sealed metal box (Seal the Spares) let a Mechanics 35 day restore a dead fuel-injected vehicle 70% of the time."
+  },
+  "worn_fuse_days": 20
+ }
+}

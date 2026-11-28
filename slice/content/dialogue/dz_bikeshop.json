@@ -1,0 +1,165 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "Hollis, Spoke & Sprocket",
+   "route": [
+    {
+     "cond": [
+      [
+       "flag",
+       "took_bike"
+      ]
+     ],
+     "next": "done"
+    }
+   ],
+   "text": "The bike shop's owner is chaining the rack with a headlamp in his teeth. The headlamp is dead too, so he's using a match. \"Card reader's gone. Cash only, if you're buying. Three hundred for the commuter.\"",
+   "options": [
+    {
+     "text": "Pay $300 in cash.",
+     "family": "trade",
+     "cond": [
+      [
+       "cash",
+       300
+      ]
+     ],
+     "effects": [
+      [
+       "cash",
+       -300
+      ],
+      [
+       "flag",
+       "took_bike"
+      ],
+      [
+       "item",
+       "bicycle",
+       1
+      ]
+     ],
+     "next": "sold"
+    },
+    {
+     "text": "\"I'll leave you my watch and my name. I'll pay you double next week.\"",
+     "family": "talk",
+     "gate": [
+      "negotiation",
+      35
+     ],
+     "effects": [
+      [
+       "flag",
+       "took_bike"
+      ],
+      [
+       "item",
+       "bicycle",
+       1
+      ],
+      [
+       "tally",
+       "hollis_pay",
+       "Pay Hollis double for the bicycle"
+      ]
+     ],
+     "next": "sold",
+     "fail": "no"
+    },
+    {
+     "text": "Wait until he turns his back and take one off the end of the rack.",
+     "family": "sneak",
+     "gate": [
+      "stealth",
+      25
+     ],
+     "effects": [
+      [
+       "flag",
+       "took_bike"
+      ],
+      [
+       "item",
+       "bicycle",
+       1
+      ],
+      [
+       "mercy",
+       -2
+      ],
+      [
+       "profile",
+       2
+      ]
+     ],
+     "next": "stolen",
+     "fail": "caught"
+    },
+    {
+     "text": "Leave it.",
+     "family": "talk",
+     "next": "end"
+    }
+   ]
+  },
+  "sold": {
+   "speaker": "Hollis",
+   "text": "\"Lights won't work. Brakes will.\" A bicycle covers 40 miles a day; feet cover 15.",
+   "options": [
+    {
+     "text": "Go.",
+     "next": "end"
+    }
+   ]
+  },
+  "no": {
+   "speaker": "Hollis",
+   "text": "\"Sorry. Everybody's going to have a story tonight.\"",
+   "options": [
+    {
+     "text": "Fair.",
+     "next": "end"
+    }
+   ]
+  },
+  "stolen": {
+   "speaker": "Spoke & Sprocket",
+   "text": "You walk it into the dark, then ride. Nobody shouts. That's the worst part.",
+   "options": [
+    {
+     "text": "Go.",
+     "next": "end"
+    }
+   ]
+  },
+  "caught": {
+   "speaker": "Hollis",
+   "text": "\"Hey!\" He gets a hand on the seat. You let go. Nobody says anything else, but three people saw it. (Profile +2.)",
+   "options": [
+    {
+     "text": "Go.",
+     "effects": [
+      [
+       "profile",
+       2
+      ]
+     ],
+     "next": "end"
+    }
+   ]
+  },
+  "done": {
+   "speaker": "Spoke & Sprocket",
+   "text": "The rack is chained and the shop is dark.",
+   "options": [
+    {
+     "text": "Back.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "dz_bikeshop"
+}

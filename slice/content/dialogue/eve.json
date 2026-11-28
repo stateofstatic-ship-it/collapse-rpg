@@ -1,0 +1,16 @@
+{
+ "start": "a",
+ "nodes": {
+  "a": {
+   "speaker": "Sunday, October 31",
+   "text": "Halloween. The court at dusk: pumpkins, a few kids in costumes, Ruth handing out full-size bars because \"you only get so many Halloweens.\" Every thread on the Signal Board is loud this week, and none of them has happened yet.\n\nThe Last Pin: name the thread you believe. Being right is worth family Buy-in +5. Being wrong costs nothing.",
+   "options": [
+    {
+     "text": "Pin a thread.",
+     "next": "end"
+    }
+   ]
+  }
+ },
+ "id": "eve"
+}
