@@ -9,6 +9,14 @@ signal exit_reached(exit: Dictionary)
 signal hint(text: String)
 
 const PROP_SLOTS := {"car": 0, "crate": 1, "tree": 2, "lamp": 3}
+## Cul-de-sac sheet (tools/make_suburb.py): yard props by slot.
+const SUBURB := ["mailbox", "mailbox2", "fence_x", "fence_y", "hedge", "bush", "bins", "hoop",
+	"fir", "fir2", "maple", "maple2", "bike", "sale", "busstop", "pumpkin",
+	"car_x", "car_y", "truck_x", "truck_y"]
+## Map characters for suburb props; a pair means pick one at random.
+const SUB_CHARS := {"P": ["fir", "fir2"], "M": ["maple", "maple2"], "m": ["mailbox", "mailbox2"],
+	"f": ["fence_x"], "F": ["fence_y"], "b": ["hedge"], "B": ["bush"], "g": ["bins"], "k": ["hoop"],
+	"i": ["bike"], "s": ["sale"], "u": ["pumpkin"], "v": ["car_x"], "V": ["car_y"], "w": ["truck_x"], "W": ["truck_y"]}
 
 var s: GameState
 var map: Dictionary
@@ -35,7 +43,7 @@ var vcam := ViewCam.new()
 var rot := 0                     # quarter turns of the view, clockwise
 var follow := true               # camera follows the hero until the player pans
 var tiles: Dictionary = {}       # cell -> atlas coords, kept so the map can be turned
-var buildings: Array = []        # [{node, cell}] cell is the footprint's front anchor
+var buildings: Array = []        # [{node, cell, fw, fh, home}] cell is the footprint's front anchor
 var statics: Array = []          # [{node, cell}] trees, lamps, cars, crates
 var busy := false
 var steps_walked := 0
@@ -81,7 +89,7 @@ func setup(state: GameState, map_id: String, variant_id: String, override: Dicti
 		for x in size.x:
 			var ch := row[x]
 			var c := Vector2i(x, y)
-			var tile_row := {".": 0, "T": 0, "H": 0, "=": 1, "c": 1, "-": 2, "l": 2, ",": 3, "x": 2}.get(ch, 0)
+			var tile_row := {".": 0, "T": 0, "H": 0, "=": 1, "c": 1, "-": 2, "l": 2, ",": 3, "x": 2, "d": 2, "p": 2, "o": 3}.get(ch, 0)
 			tiles[c] = Vector2i(rng.randi() % 8, tile_row)
 			match ch:
 				"H":
@@ -97,6 +105,29 @@ func setup(state: GameState, map_id: String, variant_id: String, override: Dicti
 					var kind: String = {"T": "tree", "l": "lamp", "c": "car", "x": "crate"}[ch]
 					statics.append({"node": _small_prop(kind, c, rng), "cell": c})
 					astar.set_point_solid(c)
+				_:
+					if SUB_CHARS.has(ch):
+						var opts: Array = SUB_CHARS[ch]
+						var k2: String = opts[rng.randi() % opts.size()]
+						statics.append({"node": _sub_prop(k2, c), "cell": c, "kind": k2})
+						astar.set_point_solid(c)
+	for h in map.get("homes", []):
+		var hc := Vector2i(int(h["cell"][0]), int(h["cell"][1]))
+		var long_x: bool = String(h.get("long", "x")) == "x"
+		var look := int(h.get("look", 0))
+		var hsp := Sprite2D.new()
+		hsp.texture = Gfx.canvas_tex("suburb")
+		hsp.region_enabled = true
+		hsp.region_rect = Rect2(look % 3 * 640, look / 3 * 512, 640, 512)
+		sorted.add_child(hsp)
+		var fw := 5 if long_x else 4
+		var fh := 4 if long_x else 5
+		buildings.append({"node": hsp, "cell": hc, "fw": fw, "fh": fh, "home": true, "long_x": long_x})
+		for dy in range(-(fh - 1), 1):
+			for dx in range(-(fw - 1), 1):
+				var b := hc + Vector2i(dx, dy)
+				if astar.is_in_boundsv(b):
+					astar.set_point_solid(b)
 	_paint_ground()
 	_place_buildings()
 	hero_cell = Vector2i(int(variant["spawn"][0]), int(variant["spawn"][1]))
@@ -163,7 +194,32 @@ func _prop(region: Rect2, offset: Vector2, pos: Vector2) -> Sprite2D:
 	return sp
 
 
+## A yard prop from the cul-de-sac sheet. Fences pick the slot that matches
+## their direction on screen, which swaps when the map is turned.
+func _sub_prop(kind: String, c: Vector2i) -> Sprite2D:
+	var sp := Sprite2D.new()
+	sp.texture = Gfx.canvas_tex("suburb")
+	sp.region_enabled = true
+	sp.offset = Vector2(0, -112)
+	sp.position = cell_pos(c)
+	_sub_region(sp, kind)
+	sorted.add_child(sp)
+	return sp
+
+
+func _sub_region(sp: Sprite2D, kind: String) -> void:
+	var k := kind
+	if rot % 2 == 1 and kind.ends_with("_x"):
+		k = kind.trim_suffix("_x") + "_y"
+	elif rot % 2 == 1 and kind.ends_with("_y"):
+		k = kind.trim_suffix("_y") + "_x"
+	var j := SUBURB.find(k)
+	sp.region_rect = Rect2(j % 8 * 256, 1024 + j / 8 * 256, 256, 256)
+
+
 func _small_prop(kind: String, c: Vector2i, rng: RandomNumberGenerator) -> Sprite2D:
+	if kind in SUBURB:
+		return _sub_prop(kind, c)
 	var slot: int = PROP_SLOTS[kind] + 4 * (rng.randi() % 8)
 	return _prop(Rect2(slot % 8 * 256, 1024 + slot / 8 * 256, 256, 256), Vector2(0, -112), cell_pos(c))
 
@@ -242,13 +298,19 @@ func _place_buildings() -> void:
 	for b in buildings:
 		var best := Vector2i.ZERO
 		var bs := -999999
-		for dy in range(-4, 1):
-			for dx in range(-4, 1):
+		for dy in range(-(int(b.get("fh", 5)) - 1), 1):
+			for dx in range(-(int(b.get("fw", 5)) - 1), 1):
 				var d := ViewCam.rot_cell(b["cell"] + Vector2i(dx, dy), rot, size.x, size.y)
 				if d.x + d.y > bs:
 					bs = d.x + d.y
 					best = d
 		b["node"].position = ground.map_to_local(best)
+		if b.get("home", false):
+			# The house art is long along screen-x; mirror it when the long side
+			# runs the other way on screen (a 4 x 5 lot, or a quarter turn).
+			var flip: bool = (not b["long_x"]) != (rot % 2 == 1)
+			b["node"].flip_h = flip
+			b["node"].offset = Vector2(32 if flip else -32, -204)
 
 
 ## Turn the map a quarter turn (dir +1 clockwise, -1 counter-clockwise).
@@ -260,9 +322,13 @@ func turn_view(dir: int) -> void:
 	_place_buildings()
 	for st in statics:
 		st["node"].position = cell_pos(st["cell"])
+		if st.has("kind"):
+			_sub_region(st["node"], st["kind"])
 	for t in targets:
 		if t["node"] != null:
 			t["node"].position = cell_pos(t["cell"])
+			if String(t["data"].get("prop", "")) in SUBURB:
+				_sub_region(t["node"], String(t["data"]["prop"]))
 	hero.position = cell_pos(hero_cell)
 	follow = true
 	camera.position = hero.position

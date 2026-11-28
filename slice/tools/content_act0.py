@@ -9,7 +9,7 @@ D = {}
 # ------------------------------------------------------------ Labor Day cookout
 D["cookout_intro"] = {"start": "a", "nodes": {
     "a": {"speaker": "Monday, September 6, 2027", "text":
-          "Labor Day on Thimbleberry Court. Eleven driveways, one long table, and a wind out of the east that smells faintly of somebody else's fire.\n\n"
+          "Labor Day on Thimbleberry Court. Nine driveways, one long table, and a wind out of the east that smells faintly of somebody else's fire.\n\n"
           "{partner.name} has a shift at the hill hospital tomorrow. {teen.name} is pretending not to watch the grill. {child.name} has the inhaler in a pocket, because the air index says Moderate and climbing. "
           "{dog.name} is under the table, waiting for a mistake.\n\nWalk the court. Talk to your neighbors. Tap a person once to see them, twice to go to them.",
           "options": [{"text": "Go out to the street.", "next": "end"}]}}}

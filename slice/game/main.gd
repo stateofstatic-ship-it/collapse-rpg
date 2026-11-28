@@ -3,7 +3,7 @@ extends Node
 ## bar, saves and play-time telemetry. Rules live in core/; this file only
 ## shows state and sends commands (tech.md presentation layer).
 
-const VERSION := "slice-5"
+const VERSION := "slice-6"
 const SAVE_PATH := "user://slice_save.json"
 const RENDER_SCALE := 0.67
 
@@ -114,6 +114,9 @@ func _shot_later(spec: String) -> void:
 		overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		dlg = null
 	await get_tree().create_timer(float(OS.get_environment("SHOT_WAIT")) if OS.has_environment("SHOT_WAIT") else 2.5).timeout
+	if OS.has_environment("ZOOM") and world != null and world.has_method("zoom_view"):
+		world.zoom_view(float(OS.get_environment("ZOOM")))
+		await get_tree().create_timer(0.3).timeout
 	if OS.has_environment("TURN") and world != null and world.has_method("turn_view"):
 		var bad := 0
 		for k in int(OS.get_environment("TURN")):
@@ -680,11 +683,20 @@ func _gesture_test() -> void:
 	_touch(0, c + Vector2(100, 0), false)
 	await get_tree().process_frame
 	print("GESTURE pan camera moved ", cam0.distance_to(ex.camera.position), " preview=", ex.preview_cell)
-	_touch(0, c + Vector2(0, 60), true)
+	# Tap an open cell two steps from the hero, wherever it is on screen now.
+	var want := Vector2i(-1, -1)
+	for d in [Vector2i(2, 0), Vector2i(0, 2), Vector2i(-2, 0), Vector2i(0, -2), Vector2i(2, 2)]:
+		var cc: Vector2i = ex.hero_cell + d
+		if ex.astar.is_in_boundsv(cc) and not ex.astar.is_point_solid(cc) and ex._target_at(cc).is_empty():
+			want = cc
+			break
+	var tp: Vector2 = ex.get_global_transform_with_canvas() * ex.cell_pos(want)
+	tp = container.get_global_transform_with_canvas() * tp   # world viewport -> screen
+	_touch(0, tp, true)
 	await get_tree().process_frame
-	_touch(0, c + Vector2(0, 60), false)
+	_touch(0, tp, false)
 	await get_tree().process_frame
-	print("GESTURE tap preview=", ex.preview_cell, " target=", not ex.pending_target.is_empty())
+	print("GESTURE tap want=", want, " preview=", ex.preview_cell, " target=", not ex.pending_target.is_empty())
 
 
 ## Agent check (HUB_TEST=1 --bot with --shot=hub): play every weekly task headlessly.
@@ -734,7 +746,7 @@ func _hub_test() -> void:
 	s.week = 7
 	hub.start_drill()
 	await get_tree().process_frame
-	for r in Hub.DRILL_SPOTS:
+	for r in Hub.drill_spots():
 		hub._drill_interact({"event": "drill:" + r})
 	hub._drill_interact({"event": "drill:home"})
 	out["drill"] = s.flag("drill_done")

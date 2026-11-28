@@ -25,6 +25,11 @@ world render scale and a 30 fps cap. Art is the device-test gray box, not target
 
 - Family setup: names, roll, gender, pronouns, heritage preset, the kids' word for
   each adult; hero attributes, two specialties, job and traits.
+- Thimbleberry Court is a cul-de-sac: one road in, a turnaround circle, nine
+  one-story houses with driveways, cars, lawns, fenced back yards, Douglas firs and
+  fall maples. Art comes from `python3 tools/make_suburb.py` (assets/suburb.png); the
+  layout and every door and task spot come from `tools/make_content.py`, which
+  fails the build if any spot is blocked or unreachable.
 - Act 0 street: each week starts on your street, not in a menu. Walk to places to
   do things: your car (shopping runs), garage (projects, Go Kit), mailbox (the
   news board), bus stop (classes, work, trips out), front door (family, the fridge

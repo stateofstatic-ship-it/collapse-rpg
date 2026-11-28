@@ -5,8 +5,18 @@ extends RefCounted
 ## week adds one hands-on task that teaches a mechanic (plan: Act 0 tutorial
 ## requirement, at most 20 minutes of teaching spread over the weeks).
 
-const DOORS := {"pellow": [11, 7], "dunmore": [17, 5], "lisk": [23, 7], "varga": [26, 14], "achterberg": [8, 14], "quan": [10, 22]}
-const HOME_DOOR := [17, 20]
+## Where everything stands on the street: maps/court.json "spots", written by
+## tools/make_content.py, which checks every spot is reachable.
+static func spot(key: String) -> Array:
+	return Rules.db("maps/court")["spots"][key]
+
+
+static func doors() -> Dictionary:
+	return Rules.db("maps/court")["spots"]["doors"]
+
+
+static func drill_spots() -> Dictionary:
+	return {"partner": spot("drill_partner"), "teen": spot("drill_teen"), "child": spot("drill_child"), "elder": spot("drill_elder")}
 
 ## One line per week: what the task is and what it teaches.
 const TASKS := {
@@ -39,14 +49,15 @@ func _hint_once(key: String, text: String) -> void:
 
 func variant() -> Dictionary:
 	var objs: Array = [
-		{"id": "st_car", "name": "Your car: shopping runs", "prop": "car", "cell": [19, 16], "event": "station:supply"},
-		{"id": "st_garage", "name": "Your garage: projects and the Go Kit", "prop": "none", "cell": [17, 18], "event": "station:site"},
-		{"id": "st_door", "name": "Your front door: family, the fridge card, end the week", "prop": "none", "cell": HOME_DOOR, "event": "station:door"},
-		{"id": "st_mail", "name": "Mailbox and porch radio: the Signal Board", "prop": "crate", "cell": [17, 22], "event": "board"},
-		{"id": "st_bus", "name": "Bus stop: classes, work, the library, the hills", "prop": "lamp", "cell": [17, 27], "event": "station:out"},
+		{"id": "st_car", "name": "Your car: shopping runs", "prop": "truck_x" if s.vehicles.any(func(v: Dictionary) -> bool: return v["kind"] != "family_car") else "car_x", "cell": spot("car"), "event": "station:supply"},
+		{"id": "st_garage", "name": "Your garage: projects and the Go Kit", "prop": "none", "cell": spot("garage"), "event": "station:site"},
+		{"id": "st_door", "name": "Your front door: family, the fridge card, end the week", "prop": "none", "cell": spot("home_door"), "event": "station:door"},
+		{"id": "st_mail", "name": "Mailbox and porch radio: the Signal Board", "prop": "mailbox", "cell": spot("mail"), "event": "board"},
+		{"id": "st_bus", "name": "Bus stop: classes, work, the library, the hills", "prop": "busstop", "cell": spot("bus"), "event": "station:out"},
 	]
-	for h in DOORS:
-		var d := {"id": "door_" + h, "name": "%s's door: porch visit" % GameState.HOUSEHOLDS[h], "prop": "none", "cell": DOORS[h], "event": "porch:" + h}
+	var dd := doors()
+	for h in dd:
+		var d := {"id": "door_" + h, "name": "%s's door: porch visit" % GameState.HOUSEHOLDS[h], "prop": "none", "cell": dd[h], "event": "porch:" + h}
 		if h == "quan" and s.flag("quan_card") and not s.flag("quan_done"):
 			d["name"] = "Marisol Quan's door: deliver Ruth's card"
 			d.erase("event")
@@ -56,18 +67,18 @@ func variant() -> Dictionary:
 	var npcs: Array = []
 	var w := s.week
 	if w >= 2 and not s.flag("ruth_chain_done"):
-		npcs.append({"id": "ruth_t", "name": "Ruth Pellow", "look": "char_elder", "cell": [12, 7], "dialogue": "ruth_chain", "task": true, "after_flag": "ruth_chain_done"})
+		npcs.append({"id": "ruth_t", "name": "Ruth Pellow", "look": "char_elder", "cell": spot("ruth"), "dialogue": "ruth_chain", "task": true, "after_flag": "ruth_chain_done"})
 	else:
-		npcs.append({"id": "ruth_l", "name": "Ruth Pellow", "look": "char_elder", "cell": [12, 7], "line": ["\"Morning.\"", "\"Morning.\"", "\"The chain's on my fridge.\"", "\"Gas line at the Fred Meyer went round the block.\"", "\"Wind's coming. I can feel it in my knee.\"", "\"Still got your card.\"", "\"Kids should know where to go. Ours never did.\"", "\"Something's off this week. I can't name it.\""][clampi(w - 1, 0, 7)]})
+		npcs.append({"id": "ruth_l", "name": "Ruth Pellow", "look": "char_elder", "cell": spot("ruth"), "line": ["\"Morning.\"", "\"Morning.\"", "\"The chain's on my fridge.\"", "\"Gas line at the Fred Meyer went round the block.\"", "\"Wind's coming. I can feel it in my knee.\"", "\"Still got your card.\"", "\"Kids should know where to go. Ours never did.\"", "\"Something's off this week. I can't name it.\""][clampi(w - 1, 0, 7)]})
 	if w >= 3 and not s.flag("range_done"):
-		npcs.append({"id": "arlo_t", "name": "Arlo Dunmore", "look": "char_trader", "cell": [18, 5], "dialogue": "arlo_range", "task": true})
+		npcs.append({"id": "arlo_t", "name": "Arlo Dunmore", "look": "char_trader", "cell": spot("arlo"), "dialogue": "arlo_range", "task": true})
 	if w >= 6 and not s.flag("teo_bag_given"):
-		npcs.append({"id": "teo_t", "name": "Teo Lisk", "look": "char_survivor", "cell": [24, 8], "dialogue": "teo_bag", "task": true})
+		npcs.append({"id": "teo_t", "name": "Teo Lisk", "look": "char_survivor", "cell": spot("teo"), "dialogue": "teo_bag", "task": true})
 	if w >= 7 and not s.flag("drill_done"):
-		npcs.append({"id": "partner_t", "name": "{partner.name}", "look": "char_medic", "role": "partner", "cell": [16, 21], "event": "task:drill", "task": true})
+		npcs.append({"id": "partner_t", "name": "{partner.name}", "look": "char_medic", "role": "partner", "cell": spot("partner"), "event": "task:drill", "task": true})
 	if w >= 8 and not s.flag("inez_radio"):
-		npcs.append({"id": "inez_t", "name": "Inez Varga", "look": "char_survivor", "cell": [27, 15], "dialogue": "inez_radio", "task": true, "after": "board"})
-	return {"night": false, "spawn": [16, 19], "npcs": npcs, "objects": objs}
+		npcs.append({"id": "inez_t", "name": "Inez Varga", "look": "char_survivor", "cell": spot("inez"), "dialogue": "inez_radio", "task": true, "after": "board"})
+	return {"night": false, "spawn": spot("hub_spawn"), "npcs": npcs, "objects": objs}
 
 
 func show() -> void:
@@ -210,10 +221,10 @@ func _porch(h: String) -> void:
 # ------------------------------------------------------------------ week 5: the dark
 func start_blow_search() -> void:
 	s = m.s
-	var v := {"night": true, "force_night": true, "spawn": HOME_DOOR, "npcs": [
-		{"id": "child_lost", "name": "{child.name}", "look": "char_civilian", "role": "child", "scale": 0.75, "cell": [6, 17], "event": "blow:child", "task": true}],
-		"objects": [{"id": "dog_lost", "name": "{dog.name}, barking", "prop": "none", "cell": [25, 9], "event": "blow:dog", "task": true},
-			{"id": "home_back", "name": "Your front door", "prop": "none", "cell": [17, 21], "event": "blow:home"}]}
+	var v := {"night": true, "force_night": true, "spawn": spot("home_door"), "npcs": [
+		{"id": "child_lost", "name": "{child.name}", "look": "char_civilian", "role": "child", "scale": 0.75, "cell": spot("lost_child"), "event": "blow:child", "task": true}],
+		"objects": [{"id": "dog_lost", "name": "{dog.name}, barking", "prop": "none", "cell": spot("lost_dog"), "event": "blow:dog", "task": true},
+			{"id": "home_back", "name": "Your front door", "prop": "none", "cell": spot("home_back"), "event": "blow:home"}]}
 	m.clear_screen()
 	ex = Explore.new()
 	m.host_world(ex)
@@ -255,17 +266,17 @@ func _blow_home(sight: int) -> void:
 
 
 # ------------------------------------------------------------------ week 7: the drill
-const DRILL_SPOTS := {"partner": [26, 16], "teen": [23, 9], "child": [10, 23], "elder": [17, 7]}
 
 
 func start_drill() -> void:
 	s = m.s
 	var npcs: Array = []
-	for r in DRILL_SPOTS:
+	var ds := drill_spots()
+	for r in ds:
 		npcs.append({"id": "drill_" + r, "name": "{%s.name}" % r, "look": {"partner": "char_medic", "elder": "char_elder"}.get(r, "char_civilian"), "role": r,
-			"scale": 0.75 if r == "child" else 1.0, "cell": DRILL_SPOTS[r], "event": "drill:" + r, "task": true})
-	var v := {"night": true, "force_night": true, "spawn": HOME_DOOR, "npcs": npcs,
-		"objects": [{"id": "rally", "name": "The rally point: your front door", "prop": "none", "cell": [17, 21], "event": "drill:home"}]}
+			"scale": 0.75 if r == "child" else 1.0, "cell": ds[r], "event": "drill:" + r, "task": true})
+	var v := {"night": true, "force_night": true, "spawn": spot("home_door"), "npcs": npcs,
+		"objects": [{"id": "rally", "name": "The rally point: your front door", "prop": "none", "cell": spot("home_back"), "event": "drill:home"}]}
 	m.clear_screen()
 	ex = Explore.new()
 	m.host_world(ex)
@@ -283,8 +294,8 @@ var _sent: Dictionary = {}
 func _drill_interact(t: Dictionary) -> void:
 	var ev := String(t.get("event", ""))
 	if ev == "drill:home":
-		if _sent.size() < DRILL_SPOTS.size():
-			m.toast("%d of %d are home. Find the rest." % [_sent.size(), DRILL_SPOTS.size()])
+		if _sent.size() < drill_spots().size():
+			m.toast("%d of %d are home. Find the rest." % [_sent.size(), drill_spots().size()])
 			return
 		_drill_done(ex.steps_walked)
 	elif ev.begins_with("drill:"):

@@ -134,7 +134,14 @@ def blank(w, h, ch="."):
     return [[ch] * w for _ in range(h)]
 
 
+SOLID = set("PMmfFbBgkisulcHTxvVwW")
+
+
 def court_map():
+    """Thimbleberry Court: a cul-de-sac. One road in from the south, a turnaround
+    circle, single-story houses with driveways, lawns, fenced back yards.
+    Houses are 5 x 4 cells (long along x) or 4 x 5 (long along y); the anchor is
+    the front corner cell (largest x and y). See tools/make_suburb.py for the art."""
     rng = random.Random(11)
     W = H = 30
     g = blank(W, H)
@@ -151,19 +158,202 @@ def court_map():
             g[y][x] = "="
         g[y][13] = "-"
         g[y][17] = "-"
-    houses = {"home": (22, 21), "pellow": (10, 6), "dunmore": (16, 4), "lisk": (22, 6), "varga": (25, 13), "achterberg": (7, 13), "quan": (9, 21)}
-    for name, (hx, hy) in houses.items():
-        g[hy][hx] = "H"
-    for _ in range(40):
+    # owner, anchor, long axis, look (look parity: even = door near the corner,
+    # garage on the long wall; odd = door mid-wall, wide gable over the garage)
+    homes = [
+        ("pellow", (9, 5), "x", 1), ("dunmore", (17, 4), "x", 0), ("lisk", (24, 5), "x", 2),
+        ("achterberg", (7, 14), "y", 3), ("varga", (26, 14), "x", 4),
+        ("home", (10, 23), "y", 1), ("quan", (23, 22), "x", 5),
+        ("", (10, 29), "x", 2), ("", (23, 29), "x", 3)]
+    solid_house = set()
+    doors, garages = {}, {}
+    for owner, (ax, ay), long, look in homes:
+        fw, fh = (5, 4) if long == "x" else (4, 5)
+        for y in range(ay - fh + 1, ay + 1):
+            for x in range(ax - fw + 1, ax + 1):
+                solid_house.add((x, y))
+                g[y][x] = "#"
+        even = look % 2 == 0
+        if long == "x":
+            door = (ax + 1, ay if even else ay - 1)
+            gcells = [(ax - 3, ay + 1), (ax - 4, ay + 1)] if even else [(ax - 2, ay + 1), (ax - 3, ay + 1)]
+            gdir = (0, 1)
+        else:
+            door = (ax if even else ax - 1, ay + 1)
+            gcells = [(ax + 1, ay - 3), (ax + 1, ay - 4)] if even else [(ax + 1, ay - 2), (ax + 1, ay - 3)]
+            gdir = (1, 0)
+        doors[owner or "spare%d" % len(doors)] = door
+        garages[owner or "spare%d" % len(garages)] = (gcells, gdir)
+
+    def inb(x, y):
+        return 0 <= x < W and 0 <= y < H
+
+    # Driveways: two cells straight out of the garage, then the shortest way to pavement.
+    for key, (gcells, (dx, dy)) in garages.items():
+        start = []
+        for (x, y) in gcells:
+            for k in range(2):
+                px, py = x + dx * k, y + dy * k
+                if inb(px, py) and g[py][px] == ".":
+                    g[py][px] = "d"
+                    start.append((px, py))
+        if not start:
+            continue
+        prev = {s: None for s in start}
+        q = list(start)
+        hit = None
+        while q and hit is None:
+            nq = []
+            for (x, y) in q:
+                for ddx, ddy in ((0, 1), (1, 0), (-1, 0), (0, -1)):
+                    nx, ny = x + ddx, y + ddy
+                    if not inb(nx, ny) or (nx, ny) in prev:
+                        continue
+                    if g[ny][nx] in "=-":
+                        hit = (x, y)
+                        break
+                    if g[ny][nx] in ".d":
+                        prev[(nx, ny)] = (x, y)
+                        nq.append((nx, ny))
+                if hit:
+                    break
+            q = nq
+        c = hit
+        while c is not None:
+            g[c[1]][c[0]] = "d"
+            c = prev[c]
+    # Front walks: door to the nearest pavement or driveway.
+    for key, (x, y) in doors.items():
+        if not inb(x, y):
+            continue
+        prev = {(x, y): None}
+        q = [(x, y)]
+        hit = None
+        while q and hit is None:
+            nq = []
+            for c in q:
+                for ddx, ddy in ((0, 1), (1, 0), (-1, 0), (0, -1)):
+                    n = (c[0] + ddx, c[1] + ddy)
+                    if not inb(*n) or n in prev:
+                        continue
+                    if g[n[1]][n[0]] in "=-d":
+                        hit = c
+                        break
+                    if g[n[1]][n[0]] == ".":
+                        prev[n] = c
+                        nq.append(n)
+                if hit:
+                    break
+            q = nq
+        c = hit
+        while c is not None:
+            g[c[1]][c[0]] = "p"
+            c = prev[c]
+    home_door = doors["home"]
+    hg = garages["home"][0][0]
+    # Spots the hub and the scenes use. Every one must stay walkable.
+    spots = {
+        "home_door": list(home_door),
+        "home_back": [home_door[0] + 1, home_door[1]],
+        "car": [hg[0] + 1, hg[1]],
+        "garage": [hg[0] + 1, hg[1] - 1],
+        "mail": [12, 25],
+        "bus": [17, 27],
+        "hub_spawn": [home_door[0] + 2, home_door[1]],
+        "ruth": [doors["pellow"][0] + 1, doors["pellow"][1] + 2],
+        "arlo": [doors["dunmore"][0], doors["dunmore"][1] + 2],
+        "teo": [doors["lisk"][0], doors["lisk"][1] + 3],
+        "partner": [home_door[0] + 2, home_door[1] + 1],
+        "inez": [doors["varga"][0], doors["varga"][1] + 2],
+        "lost_child": [3, 18],
+        "lost_dog": [27, 2],
+        "drill_partner": [doors["varga"][0] - 1, doors["varga"][1] + 2],
+        "drill_teen": [doors["lisk"][0] + 1, doors["lisk"][1] + 2],
+        "drill_child": [doors["quan"][0], doors["quan"][1] + 2],
+        "drill_elder": [doors["dunmore"][0] + 1, doors["dunmore"][1] + 2],
+        "doors": {k: list(v) for k, v in doors.items() if not k.startswith("spare") and k != "home"},
+        "act1_radio": [hg[0] + 1, hg[1]],
+        "act1_garage": [hg[0] + 1, hg[1] - 1],
+    }
+    keep = set()
+    for k, v in spots.items():
+        if k == "doors":
+            keep |= {tuple(c) for c in v.values()}
+        else:
+            keep.add(tuple(v))
+    cook = [(16, 9), (12, 10), (19, 11), (14, 14), (17, 13), (15, 15), (15, 12), (17, 17),
+            (15, 26), (11, 9), (9, 15), (10, 8), (16, 8), (15, 29), (15, 27)]
+    keep |= set(cook)
+    # keep a ring of free cells around every spot so people can reach it
+    reserve = set()
+    for (x, y) in keep:
+        for ddx in (-1, 0, 1):
+            for ddy in (-1, 0, 1):
+                reserve.add((x + ddx, y + ddy))
+
+    def put(x, y, ch, need="."):
+        if inb(x, y) and g[y][x] == need and (x, y) not in reserve:
+            g[y][x] = ch
+            return True
+        return False
+    # Street lamps on the circle and the road.
+    for x, y in [(12, 8), (18, 8), (12, 16), (18, 16), (13, 18), (17, 21)]:
+        if g[y][x] in "-." and (x, y) not in keep:
+            g[y][x] = "l"
+    # Mailboxes at the curb beside each driveway, and the home's own at its spot.
+    for key, (gcells, _) in garages.items():
+        for (x, y) in gcells:
+            pass
+    for y in range(H):
+        for x in range(W):
+            if g[y][x] == "d":
+                touching_pave = any(inb(x + a, y + b) and g[y + b][x + a] in "-=" for a, b in ((0, 1), (1, 0), (-1, 0), (0, -1)))
+                if touching_pave:
+                    for a, b in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                        if put(x + a, y + b, "m"):
+                            break
+    # Back-yard fences and hedges between lots.
+    for y in range(0, 4):
+        put(11, y, "F")
+        put(19, y, "F")
+    for x in range(0, 6):
+        put(x, 7, "f")
+    for x in range(0, 7):
+        put(x, 17, "f")
+    for x in range(25, 30):
+        put(x, 8, "f")
+        put(x, 17, "b")
+    for y in range(23, 30):
+        put(25, y, "F")
+    # Yard dressing.
+    for key, (x, y) in doors.items():
+        for a, b, ch in ((0, -1, "B"), (-1, 0, "u"), (1, 0, "B"), (0, 1, "u")):
+            if put(x + a, y + b, ch):
+                break
+    for key, (gcells, (dx, dy)) in garages.items():
+        x, y = gcells[-1]
+        put(x - dy, y - dx, "g") or put(x + dy, y + dx, "g")
+    put(13, 6, "k")                        # the Dunmores' hoop by the driveway
+    put(doors["home"][0] - 2, doors["home"][1] + 1, "i")   # a kid's bike on your lawn
+    put(12, 28, "s")                       # for sale
+    # Trees: Douglas firs at the edges and in back yards, maples out front.
+    for _ in range(140):
         x, y = rng.randrange(W), rng.randrange(H)
-        if g[y][x] == "." and all(abs(x - hx) > 5 or abs(y - hy) > 5 for hx, hy in houses.values()) and abs(x - 15) > 3:
-            g[y][x] = "T"
-    for x, y in [(12, 8), (18, 8), (12, 16), (18, 16)]:
-        g[y][x] = "l"
-    for x, y in [(20, 17), (11, 9)]:
-        g[y][x] = "c"
-    return {"id": "court", "size": [W, H], "rows": ["".join(r) for r in g], "spawn": [15, 27],
-            "houses": houses,
+        edge = x <= 2 or x >= 27 or y <= 1 or y >= 28
+        if edge or rng.random() < 0.25:
+            put(x, y, "P" if edge or rng.random() < 0.6 else "M")
+    for (ax, ay) in [(5, 9), (21, 9), (6, 21), (19, 18), (24, 17), (11, 17), (20, 26), (8, 9)]:
+        put(ax, ay, "M")
+    # Parked cars in two neighbor driveways.
+    for key, ch in (("dunmore", "W"), ("achterberg", "v"), ("quan", "V")):
+        (x, y) = garages[key][0][0]
+        dx, dy = garages[key][1]
+        put(x + dx, y + dy, ch, "d")
+    rows = ["".join(r) for r in g]
+    validate_court(rows, spots, cook)
+    return {"id": "court", "size": [W, H], "rows": rows, "spawn": [15, 27],
+            "homes": [{"owner": o, "cell": [a[0], a[1]], "long": l, "look": k} for o, a, l, k in homes],
+            "spots": spots,
             "variants": {
                 "cookout": {"night": False, "spawn": [17, 17],
                             "npcs": [
@@ -178,13 +368,41 @@ def court_map():
                 "act1": {"night": True, "spawn": [15, 26],
                          "npcs": [
                              {"id": "ruth1", "name": "Ruth Pellow", "look": "char_elder", "cell": [11, 9], "line": "\"Check-on chain's running. Ask me if you need to know who's short.\""},
-                             {"id": "hank", "name": "Hank Achterberg", "look": "char_worker", "cell": [9, 14], "line": "\"Farmhouse well behind us still pumps by hand. Just so you know.\""}],
+                             {"id": "hank", "name": "Hank Achterberg", "look": "char_worker", "cell": [9, 15], "line": "\"Farmhouse well behind us still pumps by hand. Just so you know.\""}],
                          "objects": [
                              {"id": "meeting", "name": "Ruth's garage: the lantern meeting", "prop": "lamp", "cell": [10, 8], "dialogue": "lantern_meeting", "cond": [["day_ge", 2], ["not_flag", "m2_done"]]},
                              {"id": "thaw", "name": "The Dunmores' dead freezer", "prop": "crate", "cell": [16, 8], "dialogue": "thaw", "cond": [["day_ge", 1]]},
-                             {"id": "radio", "name": "The radio shelf", "prop": "crate", "cell": [21, 18], "dialogue": "relay_radio"},
-                             {"id": "garage", "name": "Your garage", "prop": "none", "cell": [19, 19], "event": "garage_view"}],
+                             {"id": "radio", "name": "The radio shelf", "prop": "crate", "cell": spots["act1_radio"], "dialogue": "relay_radio"},
+                             {"id": "garage", "name": "Your garage", "prop": "none", "cell": spots["act1_garage"], "event": "garage_view"}],
                          "exits": [{"cell": [15, 29], "label": "Leave the court (world map)", "event": "worldmap"}]}}}
+
+
+def validate_court(rows, spots, cook):
+    """Every spot must be open ground reachable from the road."""
+    W, H = len(rows[0]), len(rows)
+
+    def open_(x, y):
+        return 0 <= x < W and 0 <= y < H and rows[y][x] not in SOLID and rows[y][x] != "#"
+    seen = {(15, 27)}
+    q = [(15, 27)]
+    while q:
+        x, y = q.pop()
+        for a, b in ((0, 1), (1, 0), (-1, 0), (0, -1)):
+            n = (x + a, y + b)
+            if n not in seen and open_(*n):
+                seen.add(n)
+                q.append(n)
+    cells = []
+    for k, v in spots.items():
+        if k == "doors":
+            cells += [("door_" + h, tuple(c)) for h, c in v.items()]
+        else:
+            cells.append((k, tuple(v)))
+    cells += [("scene", c) for c in cook]
+    bad = [(k, c, rows[c[1]][c[0]] if 0 <= c[0] < W and 0 <= c[1] < H else "out") for k, c in cells if c not in seen]
+    if bad:
+        raise SystemExit("court layout: unreachable or blocked spots %s" % bad)
+    print("court layout ok: %d spots reachable, %d open cells" % (len(cells), len(seen)))
 
 
 def tvhwy_map():
